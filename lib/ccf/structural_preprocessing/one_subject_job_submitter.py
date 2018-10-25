@@ -329,14 +329,14 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		module_logger.debug(debug_utils.get_name())
 
 		# copy the .XNAT_PROCESS script to the working directory
-		processing_script_source_path = self.xnat_pbs_jobs_home
+		processing_script_source_path = os_utils.getenv_required('HCP_RUN_UTILS')
 		processing_script_source_path += os.sep + self.PIPELINE_NAME
 		processing_script_source_path += os.sep + self.PIPELINE_NAME
-		processing_script_source_path += '.XNAT_PROCESS'
+		processing_script_source_path += '.SINGULARITY_PROCESS'
 
 		processing_script_dest_path = self.working_directory_name
 		processing_script_dest_path += os.sep + self.PIPELINE_NAME
-		processing_script_dest_path += '.XNAT_PROCESS'
+		processing_script_dest_path += '.SINGULARITY_PROCESS'
 
 		shutil.copy(processing_script_source_path, processing_script_dest_path)
 		os.chmod(processing_script_dest_path, stat.S_IRWXU | stat.S_IRWXG)
