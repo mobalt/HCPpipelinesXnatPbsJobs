@@ -37,7 +37,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 	_SEVEN_MM_TEMPLATE_PROJECTS = ('HCP_500', 'HCP_900', 'HCP_1200')
 	_CONNECTOME_SKYRA_SCANNER_PROJECTS = ('HCP_500', 'HCP_900', 'HCP_1200')
-	_PRISMA_3T_PROJECTS = ('MR_TEST', 'TestProject')
+	_PRISMA_3T_PROJECTS = ('MR_TEST', 'TestProject', 'Phantom_PRC')
 	_SUPPRESS_FREESURFER_ASSESSOR_JOB = True
 	
 	@classmethod
