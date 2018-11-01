@@ -253,6 +253,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 			wdir += os.sep + self.project
 			wdir += os.sep + self.PIPELINE_NAME
 			wdir += '.' + self.subject
+			wdir += '.' + self.classifier
 			if self.scan:
 				wdir += '.' + self.scan
 			wdir += '.' + str(current_seconds_since_epoch)
@@ -281,12 +282,12 @@ class OneSubjectJobSubmitter(abc.ABC):
 	@property
 	def scripts_start_name(self):
 		start_name = self.working_directory_name
-		start_name += os.sep + self.subject
+		start_name += os.sep + self.project
+		start_name += '.' + self.subject
+		start_name += '.' + self.classifier
 		if self.scan:
-			start_name += '_' + self.scan
+			start_name += '.' + self.scan
 		start_name += '.' + self.PIPELINE_NAME
-		start_name += '.' + self.project
-		start_name += '.' + self.session
 		return start_name
 
 	@property
@@ -454,8 +455,9 @@ class OneSubjectJobSubmitter(abc.ABC):
 		starttime_file_name +='ProcessingInfo'
 		starttime_file_name += os.path.sep
 		starttime_file_name += self.subject
+		starttime_file_name += '.' + self.classifier
 		if self.scan:
-			starttime_file_name += '_' + self.scan
+			starttime_file_name += '.' + self.scan
 		starttime_file_name += '.' + self.PIPELINE_NAME
 		starttime_file_name += '.starttime'
 		return starttime_file_name
@@ -510,15 +512,15 @@ class OneSubjectJobSubmitter(abc.ABC):
 	def check_data_job_script_name(self):
 		"""
 		Name of script to be submitted as a job to perform the check data functionality.
-		"""
+		"""	
 		module_logger.debug(debug_utils.get_name())
 		name = self.check_data_directory_name
-		name += os.sep + self.subject
+		name += os.sep + self.project
+		name += '.'  + self.subject
+		name += '.'  + self.classifier
 		if self.scan:
-			name += '_' + self.scan
+			name += '.' + self.scan
 		name += '.' + self.PIPELINE_NAME
-		name += '.' + self.project
-		name += '.' + self.session
 		name += '.' + 'XNAT_CHECK_DATA_job.sh'
 		return name
 
@@ -571,12 +573,13 @@ class OneSubjectJobSubmitter(abc.ABC):
 	def mark_no_longer_running_script_name(self):
 		module_logger.debug(debug_utils.get_name())
 		name = self.mark_completion_directory_name
-		name += os.sep + self.subject
+		name += os.sep + self.project
+		name += '.' + self.subject
+		name += '.' + self.classifier
 		if self.scan:
-			name += '_' + self.scan
+			name += '.' + self.scan
 		name += '.' + self.PIPELINE_NAME
-		name += '.' + self.project
-		name += '.' + 'MARK_COMPLETE_RUNNING_STATUS_job.sh'
+		name += '.' + 'MARK_COMPLETE_RUNNING_STATUS_job.sh'	
 		return name
 
 	@property
