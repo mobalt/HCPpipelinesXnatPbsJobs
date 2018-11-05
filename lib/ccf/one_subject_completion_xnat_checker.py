@@ -58,7 +58,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 		
 		subject_pipeline_name = subject_info.subject_id  
 		if (subject_info.extra.lower() != 'all' and subject_info.extra !=''):
-			subject_pipeline_name += '_' + subject_info.extra
+			subject_pipeline_name += '.' + subject_info.extra
 		subject_pipeline_name += '.' + self.PIPELINE_NAME
 		
 		completion_marker_file_path = resource_path + os.sep + subject_pipeline_name + '.XNAT_CHECK.success'
