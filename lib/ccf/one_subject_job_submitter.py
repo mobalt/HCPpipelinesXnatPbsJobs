@@ -282,8 +282,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 	@property
 	def scripts_start_name(self):
 		start_name = self.working_directory_name
-		start_name += os.sep + self.project
-		start_name += '.' + self.subject
+		start_name += os.sep + self.subject
 		start_name += '.' + self.classifier
 		if self.scan:
 			start_name += '.' + self.scan
@@ -515,8 +514,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		"""	
 		module_logger.debug(debug_utils.get_name())
 		name = self.check_data_directory_name
-		name += os.sep + self.project
-		name += '.'  + self.subject
+		name += os.sep + self.subject
 		name += '.'  + self.classifier
 		if self.scan:
 			name += '.' + self.scan
@@ -573,8 +571,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 	def mark_no_longer_running_script_name(self):
 		module_logger.debug(debug_utils.get_name())
 		name = self.mark_completion_directory_name
-		name += os.sep + self.project
-		name += '.' + self.subject
+		name += os.sep + self.subject
 		name += '.' + self.classifier
 		if self.scan:
 			name += '.' + self.scan
