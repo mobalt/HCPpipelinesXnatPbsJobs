@@ -56,7 +56,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 
 		resource_path = self.my_resource(archive,subject_info) + os.sep + subject_info.subject_id + os.sep +'ProcessingInfo'
 		
-		subject_pipeline_name = subject_info.project + '.' + subject_info.subject_id  + '.' + subject_info.classifier
+		subject_pipeline_name = subject_info.subject_id  + '.' + subject_info.classifier
 		if (subject_info.extra.lower() != 'all' and subject_info.extra !=''):
 			subject_pipeline_name += '.' + subject_info.extra
 		subject_pipeline_name += '.' + self.PIPELINE_NAME
