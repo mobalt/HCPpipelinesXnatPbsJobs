@@ -234,13 +234,13 @@ main()
     log_Msg "resource_uri: ${resource_uri}"
 
     java_cmd=""
-    java_cmd+="java -Xmx1024m -jar ${data_client_jar}"
+    java_cmd+="java -Xmx256m -jar ${data_client_jar}"
     java_cmd+=" -u ${g_user}"
     java_cmd+=" -p ${g_password}"
     java_cmd+=" -m DELETE"
     java_cmd+=" -r ${resource_uri}"
 
-    log_Msg "Using java -Xmx1024m -jar ${data_client_jar} to DELETE the file: ${g_file} into the resource: ${resource_uri}"
+    log_Msg "Using java -Xmx256m -jar ${data_client_jar} to DELETE the file: ${g_file} into the resource: ${resource_uri}"
     ${java_cmd}
 }
 
