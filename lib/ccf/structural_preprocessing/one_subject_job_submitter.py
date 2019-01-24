@@ -35,9 +35,9 @@ module_logger.setLevel(logging.WARNING)
 
 class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
-	_SEVEN_MM_TEMPLATE_PROJECTS = ('HCP_500', 'HCP_900', 'HCP_1200')
-	_CONNECTOME_SKYRA_SCANNER_PROJECTS = ('HCP_500', 'HCP_900', 'HCP_1200')
-	_PRISMA_3T_PROJECTS = ('MR_TEST', 'TestProject', 'Phantom_PRC')
+	_SEVEN_MM_TEMPLATE_PROJECTS = os_utils.getenv_required('SEVEN_MM_TEMPLATE_PROJECTS')
+	_CONNECTOME_SKYRA_SCANNER_PROJECTS = os_utils.getenv_required('CONNECTOME_SKYRA_SCANNER_PROJECTS')
+	_PRISMA_3T_PROJECTS = os_utils.getenv_required('PRISMA_3T_PROJECTS')
 	_SUPPRESS_FREESURFER_ASSESSOR_JOB = True
 	
 	@classmethod
@@ -354,7 +354,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
 
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
-		resources_line += ':ppn=' + str(self.WORK_PPN)
+		resources_line += ':ppn=' + str(self.WORK_PPN) + ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
 		resources_line += ',mem=' + vmem_limit_str
 
@@ -641,5 +641,3 @@ if __name__ == "__main__":
 	submitted_job_list = submitter.submit_jobs(processing_stage)
 	print("\tsubmitted jobs:", submitted_job_list)
 	print("-----")
-			
-			
