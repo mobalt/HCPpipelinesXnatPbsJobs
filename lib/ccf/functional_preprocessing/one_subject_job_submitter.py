@@ -84,7 +84,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
 
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
-		resources_line += ':ppn=' + str(self.WORK_PPN)
+		resources_line += ':ppn=' + str(self.WORK_PPN) + ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
 		resources_line += ',mem=' + vmem_limit_str
 
