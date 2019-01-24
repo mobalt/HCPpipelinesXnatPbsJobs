@@ -410,7 +410,7 @@ main()
     fi
 
     # Mask password
-    files=$(find ${g_working_dir} -maxdepth 1 -print)
+    files=$(find ${g_working_dir}/${g_subject}/ProcessingInfo -maxdepth 1 -print)
     for file in ${files} ; do
         ${XNAT_PBS_JOBS}/WorkingDirPut/mask_password.sh --password="${g_password}" --file="${file}" --verbose
     done
