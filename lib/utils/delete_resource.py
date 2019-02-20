@@ -50,7 +50,7 @@ def delete_resource(user, password, server, project, subject, session, resource,
 
 	pipeline_engine = os_utils.getenv_required('XNAT_PBS_JOBS_PIPELINE_ENGINE')
 
-	delete_cmd = 'java -Xmx1024m -jar ' + pipeline_engine + os.sep + 'lib' + os.sep + 'xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar'
+	delete_cmd = 'java -Xmx256m -jar ' + pipeline_engine + os.sep + 'lib' + os.sep + 'xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar'
 	delete_cmd += ' -u ' + user
 	delete_cmd += ' -p ' + password
 	delete_cmd += ' -m DELETE'
