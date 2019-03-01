@@ -54,7 +54,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 		if not self.does_processed_resource_exist(archive, subject_info):
 			return False
 
-		resource_path = self.my_resource(archive,subject_info) + os.sep + subject_info.subject_id + os.sep +'ProcessingInfo'
+		resource_path = self.my_resource(archive,subject_info) + os.sep + subject_info.subject_id + '_' + subject_info.classifier + os.sep +'ProcessingInfo'
 		
 		subject_pipeline_name = subject_info.subject_id + '.' + subject_info.classifier
 		if (subject_info.extra.lower() != 'all' and subject_info.extra !=''):
