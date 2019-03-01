@@ -405,12 +405,12 @@ main()
         log_Msg "-------------------------------------------------"
         log_Msg "Moving resulting files up one level out of the ${g_subject} directory in ${g_working_dir}"
         log_Msg "-------------------------------------------------"
-        mv ${g_working_dir}/${g_subject}/* ${g_working_dir}
-        rm -rf ${g_working_dir:?}/${g_subject}
+        mv ${g_working_dir}/${g_session}/* ${g_working_dir}
+        rm -rf ${g_working_dir:?}/${g_session}
     fi
 
     # Mask password
-    files=$(find ${g_working_dir}/${g_subject}/ProcessingInfo -maxdepth 1 -print)
+    files=$(find ${g_working_dir}/${g_session}/ProcessingInfo -maxdepth 1 -print)
     for file in ${files} ; do
         ${XNAT_PBS_JOBS}/WorkingDirPut/mask_password.sh --password="${g_password}" --file="${file}" --verbose
     done
