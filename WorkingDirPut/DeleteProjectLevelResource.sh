@@ -177,7 +177,7 @@ main()
 
     if [ ! -z "${delete_it}" ]; then
         java_cmd=""
-        java_cmd+="java -Xmx1024m -jar ${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar"
+        java_cmd+="java -Xmx1024m -jar ${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/XnatDataClient-1.7.6-SNAPSHOT-all.jar"
         java_cmd+=" -u ${g_user}"
         java_cmd+=" -p ${g_password}"
         java_cmd+=" -m DELETE"
