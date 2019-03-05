@@ -182,7 +182,7 @@ main()
 	if [ "${g_use_prescan_normalized}" = "TRUE" ]; then
 		log_Msg "Setting up symlinks to enable use of prescan normalized scans"
 
-		pushd ${g_working_dir}/${g_subject}/unprocessed/${g_classifier}
+		pushd ${g_working_dir}/${g_subject}_${g_classifier}/unprocessed
 
 		t1dirs=$(ls -d T1w*)
 		for t1dir in ${t1dirs} ; do

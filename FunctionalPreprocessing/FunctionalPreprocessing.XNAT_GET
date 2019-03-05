@@ -141,7 +141,7 @@ main()
 	source activate ${g_python_environment} 2>&1
 
 	mkdir -p ${g_working_dir}/tmp
-	mkdir -p ${g_working_dir}/${g_subject}
+	mkdir -p ${g_working_dir}/${g_subject}_${g_classifier}
 	
 	log_Msg "Getting CinaB-Style data"
 	${XNAT_PBS_JOBS}/lib/ccf/get_cinab_style_data.py \
@@ -153,7 +153,7 @@ main()
 		--phase=func_preproc_prereqs \
 		--remove-non-subdirs
 	
-	find  ${g_working_dir}/tmp/${g_subject}/* -maxdepth 0 -type d ! -name "ProcessingInfo" -exec mv {} ${g_working_dir}/${g_subject} \;
+	find  ${g_working_dir}/tmp/${g_subject}_${g_classifier}/* -maxdepth 0 -type d ! -name "ProcessingInfo" -exec mv {} ${g_working_dir}/${g_subject}_${g_classifier} \;
 	rm -r ${g_working_dir}/tmp
 	
 	log_Msg "Complete"

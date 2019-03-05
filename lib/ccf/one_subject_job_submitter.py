@@ -292,7 +292,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 	@property
 	def processing_info_directory_name(self):
 		processing_info_name = self.working_directory_name
-		processing_info_name += os.path.sep + self.subject
+		processing_info_name += os.path.sep + self.subject + '_' + self.classifier
 		processing_info_name += os.path.sep + 'ProcessingInfo'
 		return processing_info_name 	
 		
@@ -414,7 +414,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name() + os.linesep)
 		script.write('module load ' + self._get_xnat_pbs_setup_script_singularity_version() + os.linesep)
 		script.write(os.linesep)
-		script.write('mv ' + self.working_directory_name + os.path.sep + '*' + self.PIPELINE_NAME + '* ' + self.working_directory_name + os.path.sep + self.subject + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + '*' + self.PIPELINE_NAME + '* ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
 		script.write(os.linesep)
 		script.write('singularity exec -B ' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_container_xnat_path() + ' ' + self.xnat_pbs_jobs_home + os.sep + 'WorkingDirPut' + os.sep + 'XNAT_working_dir_put.sh \\' + os.linesep)
 		script.write('  --leave-subject-id-level \\' + os.linesep)
@@ -449,7 +449,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		starttime_file_name = self.working_directory_name
 		starttime_file_name += os.path.sep
 		
-		starttime_file_name +=self.subject
+		starttime_file_name += self.subject + '_' + self.classifier
 		starttime_file_name += os.path.sep
 		starttime_file_name +='ProcessingInfo'
 		starttime_file_name += os.path.sep
@@ -477,11 +477,11 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
 		script.write(os.linesep)
 		script.write('echo "Newly created or modified files:"' + os.linesep)
-		script.write('find ' + self.working_directory_name + os.path.sep + self.subject)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -type f -newer ' + self.starttime_file_name + os.linesep)
 		script.write(os.linesep)
 		script.write('echo "Removing NOT newly created or modified files."' + os.linesep)
-		script.write('find ' + self.working_directory_name + os.path.sep + self.subject)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -not -path "' + self.processing_info_directory_name + os.path.sep + '*"')
 		script.write(' -not -newer ' + self.starttime_file_name + ' -delete')
 		script.write(os.linesep)
@@ -489,7 +489,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('find ' + self.working_directory_name + ' -name "*_catalog.xml" -delete')
 		script.write(os.linesep)
 		script.write('echo "Remaining files:"' + os.linesep)
-		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
 
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)

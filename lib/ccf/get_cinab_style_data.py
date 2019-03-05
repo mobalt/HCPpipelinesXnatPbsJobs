@@ -104,8 +104,8 @@ class DataRetriever(object):
             last_sep_loc = get_from.rfind(os.sep)
             unproc_loc = get_from.rfind(self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX)
             sub_dir = get_from[last_sep_loc + 1:unproc_loc]
-            put_to = output_dir + os.sep + subject_info.subject_id + os.sep + 'unprocessed'
-            put_to += os.sep + subject_info.classifier + os.sep + sub_dir
+            put_to = output_dir + os.sep + subject_info.subject_id + "_" + subject_info.classifier + os.sep + 'unprocessed' + os.sep + sub_dir
+			
             module_logger.debug(debug_utils.get_name() + "   put_to: " + put_to)
 
             self._from_to(get_from, put_to)
@@ -319,12 +319,12 @@ class DataRetriever(object):
         opened for writing. Each of these files needs to be copied instead of linked.
         """
 
-        t1w_native_spec_file = output_dir + os.sep + subject_info.subject_id
+        t1w_native_spec_file = output_dir + os.sep + subject_info.subject_id + "_" + subject_info.classifier
         t1w_native_spec_file += os.sep + 'T1w' + os.sep + 'Native'
         t1w_native_spec_file += os.sep + subject_info.subject_id + '.native.wb.spec'
         file_utils.make_link_into_copy(t1w_native_spec_file, verbose=True)
 
-        native_spec_file = output_dir + os.sep + subject_info.subject_id
+        native_spec_file = output_dir + os.sep + subject_info.subject_id + "_" + subject_info.classifier
         native_spec_file += os.sep + 'MNINonLinear' + os.sep + 'Native'
         native_spec_file += os.sep + subject_info.subject_id + '.native.wb.spec'
         file_utils.make_link_into_copy(native_spec_file, verbose=True)
@@ -335,7 +335,7 @@ class DataRetriever(object):
         is invoked by the DeDriftAndResample pipeline. For the ReApplyFixPipeline
         to work correctly, those files need to be removed before processing begins.
         """
-        path_expr = output_dir + os.sep + subject_info.subject_id
+        path_expr = output_dir + os.sep + subject_info.subject_id + "_" + subject_info.classifier
         path_expr += os.sep + 'MNINonLinear' + os.sep + 'Results'
         path_expr += os.sep + '*'
 
