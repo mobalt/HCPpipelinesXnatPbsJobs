@@ -201,7 +201,7 @@ main()
 {
     get_options "$@"
 
-    data_client_jar="${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar"
+    data_client_jar="${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/XnatDataClient-1.7.6-SNAPSHOT-all.jar"
     get_session_id_script="${XNAT_PBS_JOBS_PIPELINE_ENGINE}/catalog/ToolsHCP/resources/scripts/sessionid.py"
 
     # Set up to run Python

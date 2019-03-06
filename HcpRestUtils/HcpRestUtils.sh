@@ -38,7 +38,7 @@ delete_resource()
 
 	# Delete the specified resource
 	local delete_resource_cmd=""
-	delete_resource_cmd+="java -Xmx1024m -jar ${XNAT_PIPELINE_HOME}/lib/xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar "
+	delete_resource_cmd+="java -Xmx1024m -jar ${XNAT_PIPELINE_HOME}/lib/XnatDataClient-1.7.6-SNAPSHOT-all.jar "
 	delete_resource_cmd+="-u ${user} -p ${password} -m DELETE "
 	delete_resource_cmd+="-r http://${server}/REST/projects/${project}/subjects/${subject}/experiments/${sessionID}/resources/${resource}?removeFiles=true"
 	${delete_resource_cmd}

@@ -230,7 +230,7 @@ main()
     fi
 
     if [ ! -z "${delete_it}" ]; then
-        java -Xmx1024m -jar ${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/xnat-data-client-1.6.4-SNAPSHOT-jar-with-dependencies.jar \
+        java -Xmx1024m -jar ${XNAT_PBS_JOBS_PIPELINE_ENGINE}/lib/XnatDataClient-1.7.6-SNAPSHOT-all.jar \
             -u ${g_user} -p ${g_password} -m DELETE \
             -r ${resource_uri}
     else
