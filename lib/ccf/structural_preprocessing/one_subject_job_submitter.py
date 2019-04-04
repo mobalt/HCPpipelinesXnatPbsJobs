@@ -201,6 +201,13 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		spin_echo_file_list = glob.glob(path_expr)
 		return len(spin_echo_file_list) > 0
 
+	def _has_siemens_gradient_echo_field_maps(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr_Magnitude = first_t1w_resource_path + os.sep + '*FieldMap_Magnitude*' + '.nii.gz'
+		path_expr_Phase = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
+		siemens_gradient_echo_file_list = glob.glob(path_expr_Magnitude) + glob.glob(path_expr_Phase)
+		return len(siemens_gradient_echo_file_list) > 1	
+	
 	def _get_fmap_phase_file_path(self, subject_info):
 		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
 		path_expr = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
@@ -373,8 +380,10 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		if self._has_spin_echo_field_maps(subject_info):
 			fieldmap_type_line = '  --fieldmap-type=' + 'SpinEcho'
-		else:
+		elif self._has_siemens_gradient_echo_field_maps(subject_info):
 			fieldmap_type_line = '  --fieldmap-type=' + 'SiemensGradientEcho' 
+		else:
+			fieldmap_type_line = '  --fieldmap-type=' + 'NONE' 
 			
 		first_t1w_directory_name_line = '  --first-t1w-directory-name=' + self._get_first_t1w_directory_name(subject_info)
 		first_t1w_file_name_line	  = '  --first-t1w-file-name=' + self._get_first_t1w_file_name(subject_info)		
