@@ -38,7 +38,7 @@ def delete_resource(user, password, server, project, subject, session, resource,
 												 project=project, subject=subject, session=session)
 
 	resource_url = ''
-	resource_url += 'https://' + str_utils.get_server_name(server)
+	resource_url += 'http://' + str_utils.get_server_name(server)
 	resource_url += '/REST/projects/' + project
 	resource_url += '/subjects/' + subject
 	resource_url += '/experiments/' + xnat_session_id
@@ -84,7 +84,7 @@ def main():
 
 	# optional arguments
 	parser.add_argument('-ser', '--server', dest='server', required=False,
-						default='https://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER'),
+						default='http://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER'),
 						type=str)
 	parser.add_argument('-f', '--force', dest='force', action="store_true", required=False, default=False)
 	parser.add_argument('-pw', '--password', dest='password', required=False, type=str)
