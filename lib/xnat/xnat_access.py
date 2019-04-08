@@ -99,7 +99,7 @@ def get_session_id(server, username, password, project, subject, session):
 
 def get_jsession_id(server, username, password):
 
-    request_url = 'https://' + server + '/data/JSESSION'
+    request_url = 'http://' + server + '/data/JSESSION'
     response = requests.get(request_url, auth=(username, password))
 
     if (response.status_code != 200):
