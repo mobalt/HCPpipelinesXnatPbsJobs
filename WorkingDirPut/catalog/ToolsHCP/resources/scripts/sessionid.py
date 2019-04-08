@@ -46,7 +46,7 @@ def main():
     args = parser.parse_args()
 
     session_and_session_id_list = list()
-    request_url = "https://" + args.server + "/data/projects/" + args.project + "/subjects/" + args.subject + "/experiments"
+    request_url = "http://" + args.server + "/data/projects/" + args.project + "/subjects/" + args.subject + "/experiments"
     session_and_session_id_list = get_json_response_list_of_lists(args.username, args.password, request_url, ['label', 'ID'])
     
     for session_and_session_id in session_and_session_id_list:
