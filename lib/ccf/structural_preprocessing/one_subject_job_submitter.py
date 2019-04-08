@@ -629,7 +629,7 @@ if __name__ == "__main__":
 	# user and server information
 	submitter.username = username
 	submitter.password = password
-	submitter.server = 'https://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
+	submitter.server = 'http://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
 
 	# subject and project information
 	submitter.project = subject.project
