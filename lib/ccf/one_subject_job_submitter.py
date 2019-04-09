@@ -351,7 +351,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		return xnat_pbs_setup_archive_root
 	
 	def _get_db_name(self):
-		xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_ARCHIVE_ROOT)
+		xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_ARCHIVE_ROOT')
 		if xnat_server == '/HCP/hcpdb/archive':
 			db_name = 'connectomedb'
 		elif xnat_server == '/HCP/intradb/archive':
