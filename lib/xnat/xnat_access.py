@@ -52,7 +52,7 @@ def _debug(msg):
 
 def get_session_id(server, username, password, project, subject, session):
 
-    request_url = 'https://' + server + '/data/projects/' + project + '/subjects/' + subject + '/experiments'
+    request_url = 'http://' + server + '/data/projects/' + project + '/subjects/' + subject + '/experiments'
     _debug("request_url: " + request_url)
 
     response = requests.get(request_url, auth=(username, password))
@@ -99,7 +99,7 @@ def get_session_id(server, username, password, project, subject, session):
 
 def get_jsession_id(server, username, password):
 
-    request_url = 'https://' + server + '/data/JSESSION'
+    request_url = 'http://' + server + '/data/JSESSION'
     response = requests.get(request_url, auth=(username, password))
 
     if (response.status_code != 200):

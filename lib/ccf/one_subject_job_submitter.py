@@ -350,13 +350,13 @@ class OneSubjectJobSubmitter(abc.ABC):
 		return xnat_pbs_setup_archive_root
 	
 	def _get_db_name(self):
-		xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
-		if xnat_server == 'db.humanconnectome.org':
-			db_name = 'connectomedb'
-		elif xnat_server == 'intradb.humanconnectome.org':
-			db_name = 'intradb'
-		else:
-			raise ValueError("Unrecognized XNAT_PBS_JOBS_XNAT_SERVER: " + xnat_server)
+		#xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
+		#if xnat_server == 'db.humanconnectome.org':
+		#	db_name = 'connectomedb'
+		#elif xnat_server == 'intradb.humanconnectome.org':
+		db_name = 'intradb'
+		#else:
+		#	raise ValueError("Unrecognized XNAT_PBS_JOBS_XNAT_SERVER: " + xnat_server)
 
 		return db_name
 	

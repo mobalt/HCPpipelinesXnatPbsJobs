@@ -44,7 +44,7 @@ def main():
 
     # optional arguments
     parser.add_argument('-ser', '--server', dest='server', required=False,
-                        default='https://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER'),
+                        default='http://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER'),
                         type=str)
     parser.add_argument('-f', '--force', dest='force', action='store_true', required=False, default=False)
 
