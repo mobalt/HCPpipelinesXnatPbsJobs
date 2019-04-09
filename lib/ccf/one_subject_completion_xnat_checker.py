@@ -89,7 +89,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 
 		return True
 		
-	def is_processing_complete(self, archive, subject_info,
+	def is_processing_complete(self, archive, fieldmap, subject_info,
 							   verbose=False, output=sys.stdout, short_circuit=True):
 		# If the processed resource does not exist, then the processing is certainly not complete.
 		if not self.does_processed_resource_exist(archive, subject_info):
@@ -111,5 +111,5 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 		resource_file_path=self.my_resource(archive, subject_info)
 		# If processed resource exists and is newer than all the prerequisite resources, then check
 		# to see if all the expected files exist
-		expected_file_list = self.list_of_expected_files(resource_file_path, subject_info)
+		expected_file_list = self.list_of_expected_files(resource_file_path, fieldmap, subject_info)
 		return self.do_all_files_exist(expected_file_list, verbose, output, short_circuit)
