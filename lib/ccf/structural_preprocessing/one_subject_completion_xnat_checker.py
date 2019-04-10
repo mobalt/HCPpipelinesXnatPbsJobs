@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	parser.add_argument('-p', '--project', dest='project', required=True, type=str)
 	parser.add_argument('-s', '--subject', dest='subject', required=True, type=str)
 	parser.add_argument('-c', '--classifier', dest='classifier', required=True, type=str)
-	parser.add_argument('-f', '--fieldmap', dest='fieldmap', required=True, type=str)
+	parser.add_argument('-f', '--fieldmap', dest='fieldmap', required=False, type=str ,default='SpinEcho')
 	# optional arguments
 	parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
 						required=False, default=False)
