@@ -24,6 +24,7 @@ import utils.delete_resource as delete_resource
 import utils.file_utils as file_utils
 import utils.os_utils as os_utils
 import utils.str_utils as str_utils
+import ccf.subject as ccf_subject
 
 # authorship information
 __author__ = "Timothy B. Brown"
@@ -350,13 +351,13 @@ class OneSubjectJobSubmitter(abc.ABC):
 		return xnat_pbs_setup_archive_root
 	
 	def _get_db_name(self):
-		#xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
-		#if xnat_server == 'db.humanconnectome.org':
-		#	db_name = 'connectomedb'
-		#elif xnat_server == 'intradb.humanconnectome.org':
-		db_name = 'intradb'
-		#else:
-		#	raise ValueError("Unrecognized XNAT_PBS_JOBS_XNAT_SERVER: " + xnat_server)
+		xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_ARCHIVE_ROOT')
+		if xnat_server == '/HCP/hcpdb/archive':
+			db_name = 'connectomedb'
+		elif xnat_server == '/HCP/intradb/archive':
+			db_name = 'intradb'
+		else:
+			raise ValueError("Unrecognized XNAT_PBS_JOBS_XNAT_SERVER: " + xnat_server)
 
 		return db_name
 	
@@ -562,6 +563,16 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
 		if self.scan:
 			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
+		else:
+			subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
+			if self._has_spin_echo_field_maps(subject_info):
+				fieldmap_type_line = '  --fieldmap=' + 'SpinEcho'
+			elif self._has_siemens_gradient_echo_field_maps(subject_info):
+				fieldmap_type_line = '  --fieldmap=' + 'SiemensGradientEcho' 
+			else:
+				fieldmap_type_line = '  --fieldmap=' + 'NONE' 
+			script.write(fieldmap_type_line + ' \\' + os.linesep)
+		
 		script.write('  --working-dir=' + self.check_data_directory_name + os.linesep)
 
 		script.close()
