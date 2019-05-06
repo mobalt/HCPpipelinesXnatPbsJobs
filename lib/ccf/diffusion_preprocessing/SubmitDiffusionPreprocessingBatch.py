@@ -9,18 +9,13 @@ import random
 # import of local modules
 import ccf.archive as ccf_archive
 import ccf.batch_submitter as batch_submitter
-import ccf.functional_preprocessing.one_subject_job_submitter as one_subject_job_submitter
-import ccf.functional_preprocessing.one_subject_run_status_checker as one_subject_run_status_checker
+import ccf.diffusion_preprocessing.one_subject_job_submitter as one_subject_job_submitter
+import ccf.diffusion_preprocessing.one_subject_run_status_checker as one_subject_run_status_checker
 import ccf.subject as ccf_subject
 import utils.file_utils as file_utils
 import utils.my_configparser as my_configparser
 import utils.os_utils as os_utils
 import utils.user_utils as user_utils
-
-# authorship information
-__author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, The Human Connectome Project/Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
 
 # configure logging and create a module logger
 module_logger = logging.getLogger(file_utils.get_logger_name(__file__))
@@ -65,7 +60,6 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			print("\tSubmitting", submitter.PIPELINE_NAME, "jobs for:")
 			print("\t			   project:", subject.project)
 			print("\t			   subject:", subject.subject_id)
-			print("\t				  scan:", subject.extra)
 			print("\t	session classifier:", subject.classifier)
 			print("\t			put_server:", put_server)
 			print("\t	clean_output_first:", clean_output_first)
@@ -86,7 +80,6 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			submitter.subject = subject.subject_id
 			submitter.classifier = subject.classifier
 			submitter.session = subject.subject_id + '_' + subject.classifier
-			submitter.scan = subject.extra
 
 			# job parameters
 			submitter.clean_output_resource_first = clean_output_first
