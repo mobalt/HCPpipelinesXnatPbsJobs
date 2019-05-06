@@ -328,11 +328,9 @@ class OneSubjectJobSubmitter(abc.ABC):
 		xnat_pbs_setup_singularity_container = os_utils.getenv_required('SINGULARITY_CONTAINER_PATH')
 		return xnat_pbs_setup_singularity_container
 		
-		
 	def _get_xnat_pbs_setup_script_singularity_container_xnat_path(self):
 		xnat_pbs_setup_singularity_container_xnat = os_utils.getenv_required('SINGULARITY_CONTAINER_XNAT_PATH')
 		return xnat_pbs_setup_singularity_container_xnat
-		
 		
 	def _get_xnat_pbs_setup_script_singularity_bind_path(self):
 		xnat_pbs_setup_singularity_bind = os_utils.getenv_required('SINGULARITY_BIND_PATH')
@@ -350,16 +348,9 @@ class OneSubjectJobSubmitter(abc.ABC):
 		xnat_pbs_setup_archive_root = os_utils.getenv_required('XNAT_PBS_JOBS_ARCHIVE_ROOT')
 		return xnat_pbs_setup_archive_root
 	
-	def _get_db_name(self):
-		xnat_server = os_utils.getenv_required('XNAT_PBS_JOBS_ARCHIVE_ROOT')
-		if xnat_server == '/HCP/hcpdb/archive':
-			db_name = 'connectomedb'
-		elif xnat_server == '/HCP/intradb/archive':
-			db_name = 'intradb'
-		else:
-			raise ValueError("Unrecognized XNAT_PBS_JOBS_XNAT_SERVER: " + xnat_server)
-
-		return db_name
+	def _get_db_name(self): 
+		xnat_server = os_utils.getenv_required('REQUESTED_XNAT_SERVER')
+		return xnat_server
 	
 	def create_get_data_job_script(self):
 		"""Create the script to be submitted to perform the get data job"""
@@ -563,7 +554,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
 		if self.scan:
 			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
-		else:
+		elif self.PIPELINE_NAME=='StructuralPreprocessing':
 			subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
 			if self._has_spin_echo_field_maps(subject_info):
 				fieldmap_type_line = '  --fieldmap=' + 'SpinEcho'
