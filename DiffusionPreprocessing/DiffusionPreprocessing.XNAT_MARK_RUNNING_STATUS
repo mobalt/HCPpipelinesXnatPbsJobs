@@ -248,6 +248,7 @@ main()
 					--reason=${g_reason} \
 					--dir=${directory} \
 					--use-http \
+					--protocol="https" \
 					--force	
 			rm -rf ${directory}
 	
@@ -256,7 +257,7 @@ main()
 			${XNAT_PBS_JOBS}/WorkingDirPut/RemoveFileFromResource.sh \
 						--user=${g_user} \
 						--password=${g_password} \
-						--protocol="http" \
+						--protocol="https" \
 						--server=${g_server} \
 						--project=${g_project} \
 						--subject=${g_subject} \
