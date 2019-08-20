@@ -190,6 +190,151 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
+
+	def _get_first_t1w_resource_fullpath(self, subject_info):
+		t1w_resource_paths = self.archive.available_t1w_unproc_dir_full_paths(subject_info)
+		if len(t1w_resource_paths) > 0:
+			return t1w_resource_paths[0]
+		else:
+			raise RuntimeError("Session has no T1w resources")
+		
+	def _has_spin_echo_field_maps(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + '.nii.gz'
+		spin_echo_file_list = glob.glob(path_expr)
+		return len(spin_echo_file_list) > 0
+
+	def _has_siemens_gradient_echo_field_maps(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr_Magnitude = first_t1w_resource_path + os.sep + '*FieldMap_Magnitude*' + '.nii.gz'
+		path_expr_Phase = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
+		siemens_gradient_echo_file_list = glob.glob(path_expr_Magnitude) + glob.glob(path_expr_Phase)
+		return len(siemens_gradient_echo_file_list) > 1	
+	
+	def _get_fmap_phase_file_path(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
+		fmap_phase_list = glob.glob(path_expr)
+		
+		if len(fmap_phase_list) > 0:
+			fmap_phase_file = fmap_phase_list[0]
+		else:
+			raise RuntimeError("First T1w has no Phase FieldMap: " + path_expr)
+
+		return fmap_phase_file
+
+	def _get_fmap_phase_file_name(self, subject_info):
+		full_path = self._get_fmap_phase_file_path(subject_info)
+		basename = os.path.basename(full_path)
+		return basename
+	
+	def _get_fmap_mag_file_path(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr = first_t1w_resource_path + os.sep + '*FieldMap_Magnitude*' + '.nii.gz'
+		fmap_mag_list = glob.glob(path_expr)
+
+		if len(fmap_mag_list) > 0:
+			fmap_mag_file = fmap_mag_list[0]
+		else:
+			raise RuntimeError("First T1w has no Magnitude FieldMap: " + path_expr)
+
+		return fmap_mag_file
+		
+	def _get_fmap_mag_file_name(self, subject_info):
+		full_path = self._get_fmap_mag_file_path(subject_info)
+		basename = os.path.basename(full_path)
+		return basename
+
+	def _get_positive_spin_echo_path(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + self.PAAP_POSITIVE_DIR + '.nii.gz'
+		positive_spin_echo_file_list = glob.glob(path_expr)
+
+		if len(positive_spin_echo_file_list) > 0:
+			positive_spin_echo_file = positive_spin_echo_file_list[0]
+		else:
+			raise RuntimeError("First T1w resource/scan has no positive spin echo field map")
+
+		return positive_spin_echo_file
+
+	def _get_positive_spin_echo_file_name(self, subject_info):
+		full_path = self._get_positive_spin_echo_path(subject_info)
+		basename = os.path.basename(full_path)
+		return basename
+
+	def _get_negative_spin_echo_path(self, subject_info):
+		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
+		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + self.PAAP_NEGATIVE_DIR + '.nii.gz'
+		negative_spin_echo_file_list = glob.glob(path_expr)
+
+		if len(negative_spin_echo_file_list) > 0:
+			negative_spin_echo_file = negative_spin_echo_file_list[0]
+		else:
+			raise RuntimeError("First T1w resource/scan has no negative spin echo field map")
+
+		return negative_spin_echo_file
+
+	def _get_negative_spin_echo_file_name(self, subject_info):
+		full_path = self._get_negative_spin_echo_path(subject_info)
+		basename = os.path.basename(full_path)
+		return basename
+
+	def _get_first_t1w_name(self, subject_info):
+		t1w_unproc_names = self.archive.available_t1w_unproc_names(subject_info)
+		if len(t1w_unproc_names) > 0:
+			first_t1w_name = t1w_unproc_names[0]
+		else:
+			raise RuntimeError("Session has no available T1w scans")
+
+		return first_t1w_name
+
+	def _get_first_t1w_norm_name(self, subject_info):
+		non_norm_name = self._get_first_t1w_name(subject_info)
+		vNav_loc = non_norm_name.find('vNav')
+		norm_name = non_norm_name[:vNav_loc] + 'vNav' + '_Norm' + non_norm_name[vNav_loc+4:]
+		return norm_name
+	
+	def _get_first_t1w_directory_name(self, subject_info):
+		first_t1w_name = self._get_first_t1w_name(subject_info)
+		return first_t1w_name
+	
+	def _get_first_t1w_resource_name(self, subject_info):
+		return self._get_first_t1w_name(subject_info) + self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX
+	
+	def _get_first_t1w_file_name(self, subject_info):
+		if self.use_prescan_normalized:
+			return self.session + self.archive.NAME_DELIMITER + self._get_first_t1w_norm_name(subject_info) + '.nii.gz'
+		else:
+			return self.session + self.archive.NAME_DELIMITER + self._get_first_t1w_name(subject_info) + '.nii.gz'
+
+	def _get_first_t2w_name(self, subject_info):
+		t2w_unproc_names = self.archive.available_t2w_unproc_names(subject_info)
+		if len(t2w_unproc_names) > 0:
+			first_t2w_name = t2w_unproc_names[0]
+		else:
+			raise RuntimeError("Session has no available T2w scans")
+		
+		return first_t2w_name
+
+	def _get_first_t2w_norm_name(self, subject_info):
+		non_norm_name = self._get_first_t2w_name(subject_info)
+		vNav_loc = non_norm_name.find('vNav')
+		norm_name = non_norm_name[:vNav_loc] + 'vNav' + '_Norm' + non_norm_name[vNav_loc+4:]
+		return norm_name
+	
+	def _get_first_t2w_directory_name(self, subject_info):
+		first_t2w_name = self._get_first_t2w_name(subject_info)
+		return first_t2w_name
+	
+	def _get_first_t2w_resource_name(self, subject_info):
+		return self._get_first_t2w_name(subject_info) + self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX
+
+	def _get_first_t2w_file_name(self, subject_info):
+		if self.use_prescan_normalized:
+			return self.session + self.archive.NAME_DELIMITER + self._get_first_t2w_norm_name(subject_info) + '.nii.gz'
+		else:
+			return self.session + self.archive.NAME_DELIMITER + self._get_first_t2w_name(subject_info) + '.nii.gz'
+
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
 
@@ -227,7 +372,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		#parameterfile_line   = '  --parameterfile=' + xnat_pbs_jobs_control_folder + '/batch_parameters.txt'
 		#mapfile_line   = '  --mapfile=' + xnat_pbs_jobs_control_folder + '/hcp_mapping.txt'
 		overwrite_line = '  --overwrite=yes'
-
+		
 		with open(script_name, 'w') as script:
 			script.write(resources_line + os.linesep)
 			script.write(stdout_line + os.linesep)
@@ -245,7 +390,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			#script.write(parameterfile_line + ' \\' + os.linesep)
 			#script.write(mapfile_line + ' \\' + os.linesep)
 			script.write(overwrite_line + os.linesep)
-
+			
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
 	def create_freesurfer_assessor_script(self):
