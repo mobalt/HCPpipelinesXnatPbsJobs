@@ -24,8 +24,8 @@ import ccf.archive as ccf_archive
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, Connectome Coordination Facility"
+__maintainer__ = "Junil Chang"
 
 # create a module logger
 module_logger = logging.getLogger(__name__)
@@ -184,171 +184,16 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		
 		script.write('  --delay-seconds=120' + os.linesep)
 		
+		script.write(os.linesep)
+		script.write('rm -rf ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' + os.linesep)
+
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
-
-
-	def _get_first_t1w_resource_fullpath(self, subject_info):
-		t1w_resource_paths = self.archive.available_t1w_unproc_dir_full_paths(subject_info)
-		if len(t1w_resource_paths) > 0:
-			return t1w_resource_paths[0]
-		else:
-			raise RuntimeError("Session has no T1w resources")
-		
-	def _has_spin_echo_field_maps(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + '.nii.gz'
-		spin_echo_file_list = glob.glob(path_expr)
-		return len(spin_echo_file_list) > 0
-
-	def _has_siemens_gradient_echo_field_maps(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr_Magnitude = first_t1w_resource_path + os.sep + '*FieldMap_Magnitude*' + '.nii.gz'
-		path_expr_Phase = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
-		siemens_gradient_echo_file_list = glob.glob(path_expr_Magnitude) + glob.glob(path_expr_Phase)
-		return len(siemens_gradient_echo_file_list) > 1	
-	
-	def _get_fmap_phase_file_path(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr = first_t1w_resource_path + os.sep + '*FieldMap_Phase*' + '.nii.gz'
-		fmap_phase_list = glob.glob(path_expr)
-		
-		if len(fmap_phase_list) > 0:
-			fmap_phase_file = fmap_phase_list[0]
-		else:
-			raise RuntimeError("First T1w has no Phase FieldMap: " + path_expr)
-
-		return fmap_phase_file
-
-	def _get_fmap_phase_file_name(self, subject_info):
-		full_path = self._get_fmap_phase_file_path(subject_info)
-		basename = os.path.basename(full_path)
-		return basename
-	
-	def _get_fmap_mag_file_path(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr = first_t1w_resource_path + os.sep + '*FieldMap_Magnitude*' + '.nii.gz'
-		fmap_mag_list = glob.glob(path_expr)
-
-		if len(fmap_mag_list) > 0:
-			fmap_mag_file = fmap_mag_list[0]
-		else:
-			raise RuntimeError("First T1w has no Magnitude FieldMap: " + path_expr)
-
-		return fmap_mag_file
-		
-	def _get_fmap_mag_file_name(self, subject_info):
-		full_path = self._get_fmap_mag_file_path(subject_info)
-		basename = os.path.basename(full_path)
-		return basename
-
-	def _get_positive_spin_echo_path(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + self.PAAP_POSITIVE_DIR + '.nii.gz'
-		positive_spin_echo_file_list = glob.glob(path_expr)
-
-		if len(positive_spin_echo_file_list) > 0:
-			positive_spin_echo_file = positive_spin_echo_file_list[0]
-		else:
-			raise RuntimeError("First T1w resource/scan has no positive spin echo field map")
-
-		return positive_spin_echo_file
-
-	def _get_positive_spin_echo_file_name(self, subject_info):
-		full_path = self._get_positive_spin_echo_path(subject_info)
-		basename = os.path.basename(full_path)
-		return basename
-
-	def _get_negative_spin_echo_path(self, subject_info):
-		first_t1w_resource_path = self._get_first_t1w_resource_fullpath(subject_info)
-		path_expr = first_t1w_resource_path + os.sep + '*SpinEchoFieldMap*' + self.PAAP_NEGATIVE_DIR + '.nii.gz'
-		negative_spin_echo_file_list = glob.glob(path_expr)
-
-		if len(negative_spin_echo_file_list) > 0:
-			negative_spin_echo_file = negative_spin_echo_file_list[0]
-		else:
-			raise RuntimeError("First T1w resource/scan has no negative spin echo field map")
-
-		return negative_spin_echo_file
-
-	def _get_negative_spin_echo_file_name(self, subject_info):
-		full_path = self._get_negative_spin_echo_path(subject_info)
-		basename = os.path.basename(full_path)
-		return basename
-
-	def _get_first_t1w_name(self, subject_info):
-		t1w_unproc_names = self.archive.available_t1w_unproc_names(subject_info)
-		if len(t1w_unproc_names) > 0:
-			first_t1w_name = t1w_unproc_names[0]
-		else:
-			raise RuntimeError("Session has no available T1w scans")
-
-		return first_t1w_name
-
-	def _get_first_t1w_norm_name(self, subject_info):
-		non_norm_name = self._get_first_t1w_name(subject_info)
-		vNav_loc = non_norm_name.find('vNav')
-		norm_name = non_norm_name[:vNav_loc] + 'vNav' + '_Norm' + non_norm_name[vNav_loc+4:]
-		return norm_name
-	
-	def _get_first_t1w_directory_name(self, subject_info):
-		first_t1w_name = self._get_first_t1w_name(subject_info)
-		return first_t1w_name
-	
-	def _get_first_t1w_resource_name(self, subject_info):
-		return self._get_first_t1w_name(subject_info) + self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX
-	
-	def _get_first_t1w_file_name(self, subject_info):
-		if self.use_prescan_normalized:
-			return self.session + self.archive.NAME_DELIMITER + self._get_first_t1w_norm_name(subject_info) + '.nii.gz'
-		else:
-			return self.session + self.archive.NAME_DELIMITER + self._get_first_t1w_name(subject_info) + '.nii.gz'
-
-	def _get_first_t2w_name(self, subject_info):
-		t2w_unproc_names = self.archive.available_t2w_unproc_names(subject_info)
-		if len(t2w_unproc_names) > 0:
-			first_t2w_name = t2w_unproc_names[0]
-		else:
-			raise RuntimeError("Session has no available T2w scans")
-		
-		return first_t2w_name
-
-	def _get_first_t2w_norm_name(self, subject_info):
-		non_norm_name = self._get_first_t2w_name(subject_info)
-		vNav_loc = non_norm_name.find('vNav')
-		norm_name = non_norm_name[:vNav_loc] + 'vNav' + '_Norm' + non_norm_name[vNav_loc+4:]
-		return norm_name
-	
-	def _get_first_t2w_directory_name(self, subject_info):
-		first_t2w_name = self._get_first_t2w_name(subject_info)
-		return first_t2w_name
-	
-	def _get_first_t2w_resource_name(self, subject_info):
-		return self._get_first_t2w_name(subject_info) + self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX
-
-	def _get_first_t2w_file_name(self, subject_info):
-		if self.use_prescan_normalized:
-			return self.session + self.archive.NAME_DELIMITER + self._get_first_t2w_norm_name(subject_info) + '.nii.gz'
-		else:
-			return self.session + self.archive.NAME_DELIMITER + self._get_first_t2w_name(subject_info) + '.nii.gz'
 
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
 
-		# copy the .XNAT_PROCESS script to the working directory
-		processing_script_source_path = os_utils.getenv_required('HCP_RUN_UTILS')
-		processing_script_source_path += os.sep + self.PIPELINE_NAME
-		processing_script_source_path += os.sep + self.PIPELINE_NAME
-		processing_script_source_path += '.SINGULARITY_PROCESS'
-
-		processing_script_dest_path = self.working_directory_name
-		processing_script_dest_path += os.sep + self.PIPELINE_NAME
-		processing_script_dest_path += '.SINGULARITY_PROCESS'
-
-		shutil.copy(processing_script_source_path, processing_script_dest_path)
-		os.chmod(processing_script_dest_path, stat.S_IRWXU | stat.S_IRWXG)
-
-		# write the process data job script (that calls the .XNAT_PROCESS script)
+		xnat_pbs_jobs_control_folder = os_utils.getenv_required('XNAT_PBS_JOBS_CONTROL')
 
 		subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
 
@@ -370,57 +215,18 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		xnat_pbs_setup_line = 'source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name()
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
-		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
-											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
-											+ ',' + self._get_xnat_pbs_setup_script_freesurfer_license_path() + ':/export/freesurfer_license' \
-											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + processing_script_source_path 
 		
-		subject_line   = '  --subject=' + self.subject
-		session_classifier_line = '  --classifier=' + self.classifier
-
-		if self._has_spin_echo_field_maps(subject_info):
-			fieldmap_type_line = '  --fieldmap-type=' + 'SpinEcho'
-		elif self._has_siemens_gradient_echo_field_maps(subject_info):
-			fieldmap_type_line = '  --fieldmap-type=' + 'SiemensGradientEcho' 
-		else:
-			fieldmap_type_line = '  --fieldmap-type=' + 'NONE' 
-			
-		first_t1w_directory_name_line = '  --first-t1w-directory-name=' + self._get_first_t1w_directory_name(subject_info)
-		first_t1w_file_name_line	  = '  --first-t1w-file-name=' + self._get_first_t1w_file_name(subject_info)		
-		first_t2w_directory_name_line = '  --first-t2w-directory-name=' + self._get_first_t2w_directory_name(subject_info)
-		first_t2w_file_name_line	  = '  --first-t2w-file-name=' + self._get_first_t2w_file_name(subject_info)
-		brain_size_line			   = '  --brainsize=' + str(self.brain_size)
-		t1template_line	  = '  --t1template=' + self.T1W_TEMPLATE_NAME
-		t1templatebrain_line = '  --t1templatebrain=' + self.T1W_TEMPLATE_BRAIN_NAME
-		t1template2mm_line   = '  --t1template2mm=' + self.T1W_TEMPLATE_2MM_NAME
-		t2template_line	  = '  --t2template=' + self.T2W_TEMPLATE_NAME
-		t2templatebrain_line = '  --t2templatebrain=' + self.T2W_TEMPLATE_BRAIN_NAME
-		t2template2mm_line   = '  --t2template2mm=' + self.T2W_TEMPLATE_2MM_NAME
-		templatemask_line	= '  --templatemask=' + self.TEMPLATE_MASK_NAME
-		template2mmmask_line = '  --template2mmmask=' + self.TEMPLATE_2MM_MASK_NAME
-		fnirtconfig_line	 = '  --fnirtconfig=' + self.FNIRT_CONFIG_FILE_NAME
-
-		if subject_info.project in OneSubjectJobSubmitter._CONNECTOME_SKYRA_SCANNER_PROJECTS:
-			gdcoeffs_line = '  --gdcoeffs=' + self.CONNECTOME_GDCOEFFS_FILE_NAME
-		elif subject_info.project in OneSubjectJobSubmitter._PRISMA_3T_PROJECTS:
-			gdcoeffs_line = '  --gdcoeffs=' + self.PRISMA_3T_GDCOEFFS_FILE_NAME
-		else:
-			raise ValueError("Unrecognized project for setting gradient distortion coefficients file: " + subject_info.project)
-
-		topupconfig_line	 = '  --topupconfig=' + self.TOPUP_CONFIG_FILE_NAME
-
-		if self._has_spin_echo_field_maps(subject_info):
-			se_phase_pos_line = '  --se-phase-pos=' + self._get_positive_spin_echo_file_name(subject_info)
-			se_phase_neg_line = '  --se-phase-neg=' + self._get_negative_spin_echo_file_name(subject_info)
-			# mag_line = None
-			# phase_line = None
-		else:
-			se_phase_pos_line = None
-			se_phase_neg_line = None
-			# mag_line   = '  --fmapmag=' + self._get_fmap_mag_file_name(subject_info)
-			# phase_line = '  --fmapphase=' + self._get_fmap_phase_file_name(subject_info)
-			
-		wdir_line  = '  --working-dir=' + self.working_directory_name
+		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
+											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
+											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
+											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
+		
+		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
+		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
+		#hcpdatapath_line   = '  --hcpdatapath=' + self.working_directory_name
+		#parameterfile_line   = '  --parameterfile=' + xnat_pbs_jobs_control_folder + '/batch_parameters.txt'
+		#mapfile_line   = '  --mapfile=' + xnat_pbs_jobs_control_folder + '/hcp_mapping.txt'
+		overwrite_line = '  --overwrite=yes'
 
 		with open(script_name, 'w') as script:
 			script.write(resources_line + os.linesep)
@@ -429,34 +235,16 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_line + os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
+			
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
-			script.write(subject_line + ' \\' + os.linesep)
-			script.write(session_classifier_line + ' \\' + os.linesep)
-			script.write(fieldmap_type_line + ' \\' + os.linesep)
-			script.write(first_t1w_directory_name_line + ' \\' + os.linesep)
-			script.write(first_t1w_file_name_line + ' \\' + os.linesep)
-			script.write(first_t2w_directory_name_line + ' \\' + os.linesep)
-			script.write(first_t2w_file_name_line + ' \\' + os.linesep)
-			script.write(brain_size_line + ' \\' + os.linesep)
-			script.write(t1template_line + ' \\' + os.linesep)
-			script.write(t1templatebrain_line + ' \\' + os.linesep)
-			script.write(t1template2mm_line + ' \\' + os.linesep)
-			script.write(t2template_line + ' \\' + os.linesep)
-			script.write(t2templatebrain_line + ' \\' + os.linesep)
-			script.write(t2template2mm_line + ' \\' + os.linesep)
-			script.write(templatemask_line + ' \\' + os.linesep)
-			script.write(template2mmmask_line + ' \\' + os.linesep)
-			script.write(fnirtconfig_line + ' \\' + os.linesep)
-			script.write(gdcoeffs_line + ' \\' + os.linesep)
-			script.write(topupconfig_line + ' \\' + os.linesep)
-
-			if (se_phase_pos_line): script.write(se_phase_pos_line + ' \\' + os.linesep)
-			if (se_phase_neg_line): script.write(se_phase_neg_line + ' \\' + os.linesep)
-			# if (mag_line): script.write(mag_line + ' \\' + os.linesep)
-			# if (phase_line): script.write(phase_line + ' \\' + os.linesep)
 			
-			script.write(wdir_line  + os.linesep)
+			script.write(studyfolder_line + ' \\' + os.linesep)
+			script.write(subject_line + ' \\' + os.linesep)
+			#script.write(hcpdatapath_line + ' \\' + os.linesep)
+			#script.write(parameterfile_line + ' \\' + os.linesep)
+			#script.write(mapfile_line + ' \\' + os.linesep)
+			script.write(overwrite_line + os.linesep)
 
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
