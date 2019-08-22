@@ -192,7 +192,7 @@ main()
 	check_cmd+=" --classifier=${g_classifier}"
 	
 	if [ -z "${g_fieldmap}" ]; then
-		check_cmd+=" --fieldmap=NONE"
+		check_cmd+=" --fieldmap=SpinEcho"
 	else
 		check_cmd+=" --fieldmap=${g_fieldmap}"
 	fi
