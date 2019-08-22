@@ -562,12 +562,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
 		elif self.PIPELINE_NAME=='StructuralPreprocessing':
 			subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
-			if self._has_spin_echo_field_maps(subject_info):
-				fieldmap_type_line = '  --fieldmap=' + 'SpinEcho'
-			elif self._has_siemens_gradient_echo_field_maps(subject_info):
-				fieldmap_type_line = '  --fieldmap=' + 'SiemensGradientEcho' 
-			else:
-				fieldmap_type_line = '  --fieldmap=' + 'NONE' 
+			fieldmap_type_line = '  --fieldmap=' + 'NONE' 
 			script.write(fieldmap_type_line + ' \\' + os.linesep)
 		
 		script.write('  --working-dir=' + self.check_data_directory_name + os.linesep)
