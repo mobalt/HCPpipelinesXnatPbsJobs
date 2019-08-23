@@ -469,9 +469,9 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
 		script.write(os.linesep)
 		
-		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep +'hcp' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear ')
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
-		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'hcp' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T*w ')
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T*w ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + 'specs ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
