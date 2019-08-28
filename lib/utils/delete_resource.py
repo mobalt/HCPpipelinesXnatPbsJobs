@@ -19,8 +19,8 @@ import xnat.xnat_access as xnat_access
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2016, The Human Connectome Project"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, The Human Connectome Project"
+__maintainer__ = "Junil Chang"
 
 
 def _inform(msg):
@@ -38,7 +38,7 @@ def delete_resource(user, password, server, project, subject, session, resource,
 												 project=project, subject=subject, session=session)
 
 	resource_url = ''
-	resource_url += 'http://' + str_utils.get_server_name(server)
+	resource_url += 'https://' + str_utils.get_server_name(server)
 	resource_url += '/REST/projects/' + project
 	resource_url += '/subjects/' + subject
 	resource_url += '/experiments/' + xnat_session_id
