@@ -417,7 +417,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --subject="' + self.subject + '" \\' + os.linesep)
 		script.write('  --session="' + self.session + '" \\' + os.linesep)
 		script.write('  --working-dir="' + self.working_directory_name + '" \\' + os.linesep)
-		script.write('  --use-http' + ' \\' + os.linesep)
 
 		if self.scan:
 			script.write('  --scan="' + self.scan + '" \\' + os.linesep)
