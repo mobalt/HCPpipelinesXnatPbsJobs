@@ -394,6 +394,7 @@ main()
         
     else
         # The specified directory is available on the server, so upload it "by reference"
+	workfolder=$(basename ${g_dir})
         resource_url=""
         resource_url+="${g_protocol}:"
         resource_url+="//${g_server}"
@@ -407,7 +408,7 @@ main()
         variable_values+="?overwrite=true"
         variable_values+="&replace=true"
         variable_values+="&event_reason=${g_reason}"
-        variable_values+="&reference=${g_dir}"
+        variable_values+="&reference=${XNAT_PBS_JOBS_SHADOWS_ROOT}/chpc/BUILD/${g_user}/${g_project}/${workfolder}"
 
         resource_uri="${resource_url}${variable_values}"
         log_Msg "resource_uri: ${resource_uri}"
