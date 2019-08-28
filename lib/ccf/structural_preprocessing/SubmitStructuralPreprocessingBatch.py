@@ -22,8 +22,8 @@ import utils.user_utils as user_utils
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, The Human Connectome Project/Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, The Human Connectome Project/Connectome Coordination Facility"
+__maintainer__ = "Junil Chang"
 
 # configure logging and create a module logger
 module_logger = logging.getLogger(file_utils.get_logger_name(__file__))
@@ -87,7 +87,7 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			# user and server information
 			submitter.username = username
 			submitter.password = password
-			submitter.server = 'http://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
+			submitter.server = 'https://' + os_utils.getenv_required('XNAT_PBS_JOBS_XNAT_SERVER')
 
 			# subject and project information
 			submitter.project = subject.project
