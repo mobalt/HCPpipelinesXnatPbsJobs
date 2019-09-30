@@ -372,6 +372,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		#parameterfile_line   = '  --parameterfile=' + xnat_pbs_jobs_control_folder + '/batch_parameters.txt'
 		#mapfile_line   = '  --mapfile=' + xnat_pbs_jobs_control_folder + '/hcp_mapping.txt'
 		overwrite_line = '  --overwrite=yes'
+		hcppipelineprocess_line = '  --hcppipelineprocess=StructuralPreprocessing'
 		
 		with open(script_name, 'w') as script:
 			script.write(resources_line + os.linesep)
@@ -389,7 +390,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			#script.write(hcpdatapath_line + ' \\' + os.linesep)
 			#script.write(parameterfile_line + ' \\' + os.linesep)
 			#script.write(mapfile_line + ' \\' + os.linesep)
-			script.write(overwrite_line + os.linesep)
+			script.write(overwrite_line + ' \\' + os.linesep)
+			script.write(hcppipelineprocess_line + os.linesep)
 			
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
