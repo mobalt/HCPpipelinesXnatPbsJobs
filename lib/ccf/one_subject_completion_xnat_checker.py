@@ -17,8 +17,8 @@ import ccf.one_subject_completion_checker as one_subject_completion_checker
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, Connectome Coordination Facility"
+__maintainer__ = "Junil Chang"
 
 class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectCompletionChecker):
 	"""
@@ -68,7 +68,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_checker.OneSubjectC
 		subject_pipeline_name = subject_info.subject_id + '_' + subject_info.classifier
 		subject_pipeline_name_check = subject_info.subject_id + '.' + subject_info.classifier
 		if (subject_info.extra.lower() != 'all' and subject_info.extra !=''):
-			subject_pipeline_name += '.' + subject_info.extra
+			subject_pipeline_name += '_' + subject_info.extra
 			subject_pipeline_name_check += '.' + subject_info.extra
 		subject_pipeline_name += '.' + self.PIPELINE_NAME
 		subject_pipeline_name_check += '.' + self.PIPELINE_NAME
