@@ -482,6 +482,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcpls' + os.path.sep  + 'hcpls2nii.log ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
+		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T*w/*"')
 		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo/*"')
