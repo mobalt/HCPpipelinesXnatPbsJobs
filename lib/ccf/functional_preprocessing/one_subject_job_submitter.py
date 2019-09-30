@@ -24,8 +24,8 @@ import ccf.archive as ccf_archive
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, Connectome Coordination Facility"
+__maintainer__ = "Junil Chang"
 
 # create a module logger
 module_logger = logging.getLogger(__name__)
@@ -54,23 +54,101 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 	def WORK_PPN(self):
 		return 1
 
+	def create_get_data_job_script(self):
+		"""Create the script to be submitted to perform the get data job"""
+		module_logger.debug(debug_utils.get_name())
+
+		script_name = self.get_data_job_script_name
+
+		with contextlib.suppress(FileNotFoundError):
+			os.remove(script_name)
+
+		script = open(script_name, 'w')
+
+		self._write_bash_header(script)
+		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
+		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
+		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
+		script.write(os.linesep)
+		script.write('source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name() + os.linesep)
+		script.write('module load ' + self._get_xnat_pbs_setup_script_singularity_version() + os.linesep)
+		script.write(os.linesep)
+		script.write('singularity exec -B ' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_container_xnat_path() + ' ' + self.get_data_program_path  + ' \\' + os.linesep)
+		script.write('  --project=' + self.project + ' \\' + os.linesep)
+		script.write('  --subject=' + self.subject + ' \\' + os.linesep)
+		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
+
+		if self.scan:
+			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
+			
+		script.write('  --working-dir=' + self.working_directory_name + ' \\' + os.linesep)
+
+		script.write(os.linesep)
+		script.write('rm -rf ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' + os.linesep)
+		script.write('find ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/ -maxdepth 1 -mindepth 1 ' )
+		script.write('-type d -not -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/' + self.scan )
+		script.write(' -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/[rt]fMRI_*_[AP][PA]\' -exec rm -rf \'{}\' \;' + os.linesep)
+
+		script.close()
+		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
+
+	def create_clean_data_script(self):
+		module_logger.debug(debug_utils.get_name())
+
+		script_name = self.clean_data_script_name
+
+		with contextlib.suppress(FileNotFoundError):
+			os.remove(script_name)
+
+		script = open(script_name, 'w')
+
+		self._write_bash_header(script)
+		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
+		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
+		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
+		script.write(os.linesep)
+		
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
+		script.write(self.subject + '_' + self.classifier + ' \! -newer ' + self.starttime_file_name + ' -delete')
+		script.write(os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
+		script.write(self.subject + '_' + self.classifier + os.path.sep + '* ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
+					
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + 'specs ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'processing ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'info' + os.path.sep + 'hcpls ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'subject_hcp.txt ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
+		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcpls' + os.path.sep  + 'hcpls2nii.log ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
+		
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
+		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T1w/*"')
+		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo/*"')
+		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear/*"')
+		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.scan + '/*"')
+		script.write(' -delete')
+		script.write(os.linesep)
+		script.write('echo "Removing any XNAT catalog files still around."' + os.linesep)
+		script.write('find ' + self.working_directory_name + ' -name "*_catalog.xml" -delete')
+		script.write(os.linesep)
+		script.write('echo "Remaining files:"' + os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
+
+		script.close()
+		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
+
+
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
 
-		# copy the .XNAT_PROCESS script to the working directory
-		processing_script_source_path = os_utils.getenv_required('HCP_RUN_UTILS')
-		processing_script_source_path += os.sep + self.PIPELINE_NAME
-		processing_script_source_path += os.sep + self.PIPELINE_NAME
-		processing_script_source_path += '.SINGULARITY_PROCESS'
-
-		processing_script_dest_path = self.working_directory_name
-		processing_script_dest_path += os.sep + self.PIPELINE_NAME
-		processing_script_dest_path += '.SINGULARITY_PROCESS' 
-
-		shutil.copy(processing_script_source_path, processing_script_dest_path)
-		os.chmod(processing_script_dest_path, stat.S_IRWXU | stat.S_IRWXG)
-	   
-		# write the process data job script (that calls the .XNAT_PROCESS script)
+		xnat_pbs_jobs_control_folder = os_utils.getenv_required('XNAT_PBS_JOBS_CONTROL')
 
 		subject_info = ccf_subject.SubjectInfo(self.project, self.subject,
 											   self.classifier, self.scan)
@@ -93,17 +171,16 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		xnat_pbs_setup_line = 'source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name()
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
-		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
+		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
+											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
-											+ ',' + self._get_xnat_pbs_setup_script_freesurfer_license_path() + ':/export/freesurfer_license' \
-											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + processing_script_source_path 
-		subject_line	 = '  --subject=' + self.subject
-		scan_line		= '  --scan=' + self.scan
-		session_classifier_line = '  --classifier=' + self.classifier
-		dcmethod_line	= '  --dcmethod=TOPUP'
-		topupconfig_line = '  --topupconfig=b02b0.cnf'
-		gdcoeffs_line	= '  --gdcoeffs=Prisma_3T_coeff_AS82.grad'
-		wdir_line  = '  --working-dir=' + self.working_directory_name
+											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
+		
+		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
+		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
+		scan_line   = '  --scan=' + self.scan
+		overwrite_line = '  --overwrite=yes'
+		hcppipelineprocess_line = '  --hcppipelineprocess=FunctionalPreprocessing'
 		
 		with open(script_name, 'w') as script:
 			script.write(resources_line + os.linesep)
@@ -112,15 +189,15 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_line + os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
-			script.write(os.linesep)	
+			
+			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
-			script.write(subject_line +	 ' \\' + os.linesep)
-			script.write(scan_line +		' \\' + os.linesep)
-			script.write(session_classifier_line + ' \\' + os.linesep)
-			script.write(dcmethod_line +	' \\' + os.linesep)
-			script.write(topupconfig_line + ' \\' + os.linesep)
-			script.write(gdcoeffs_line +	' \\' + os.linesep)
-			script.write(wdir_line + os.linesep)
+			
+			script.write(studyfolder_line + ' \\' + os.linesep)
+			script.write(subject_line + ' \\' + os.linesep)
+			script.write(scan_line + ' \\' + os.linesep)
+			script.write(overwrite_line + ' \\' + os.linesep)
+			script.write(hcppipelineprocess_line + os.linesep)
 			
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 			
