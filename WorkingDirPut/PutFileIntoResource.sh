@@ -351,7 +351,7 @@ main()
         variable_values+="?overwrite=true"
         variable_values+="&replace=true"
         variable_values+="&event_reason=${g_reason}"
-		
+		 
         resource_uri="${resource_url}${variable_values}"
         log_Msg "resource_uri: ${resource_uri}"
 		
