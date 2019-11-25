@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 g_script_name=$(basename "${0}")
 
@@ -7,9 +8,15 @@ if [ -z "${XNAT_PBS_JOBS}" ]; then
 	exit 1
 fi
 
-source "${XNAT_PBS_JOBS}/shlib/log.shlib"  # Logging related functions
-source "${XNAT_PBS_JOBS}/shlib/utils.shlib"  # Utility functions
+if [ -z "${HCP_RUN_UTILS}" ]; then
+	echo "${g_script_name}: ABORTING: HCP_RUN_UTILS environment variable must be set"
+	exit 1
+fi
+
+source ${HCP_RUN_UTILS}/shlib/log.shlib  # Logging related functions
+source ${HCP_RUN_UTILS}/shlib/utils.shlib  # Utility functions
 log_Msg "XNAT_PBS_JOBS: ${XNAT_PBS_JOBS}"
+log_Msg "HCP_RUN_UTILS: ${HCP_RUN_UTILS}"
 
 usage()
 {
@@ -23,6 +30,7 @@ PARAMETERs are [ ] = optional; < > = user supplied value
   [--help]                 : show usage information and exit with non-zero return code
    --project=<project>     : XNAT project (e.g. HCP_500)
    --subject=<subject>     : XNAT subject ID within project (e.g. 100307)
+   --classifier=<classifier> : XNAT session classifier (e.g. 3T, 7T, MR, V1, V2, etc.)
    --working-dir=<dir>     : Working directory in which to place retrieved data
                              and in which to produce results
 
@@ -36,6 +44,7 @@ get_options()
 	# initialize global output variables
 	unset g_project
 	unset g_subject
+	unset g_classifier
 	unset g_working_dir
 
 	# parse arguments
@@ -57,6 +66,10 @@ get_options()
 				;;
 			--subject=*)
 				g_subject=${argument#*=}
+				index=$(( index + 1 ))
+				;;
+			--classifier=*)
+				g_classifier=${argument#*=}
 				index=$(( index + 1 ))
 				;;
 			--working-dir=*)
@@ -84,35 +97,22 @@ get_options()
 	else
 		log_Msg "g_subject: ${g_subject}"
 	fi
-
+	
+	if [ -z "${g_classifier}" ]; then
+		error_msgs+="\nERROR: subject (--classifier=) required"
+	else
+		log_Msg "g_classifier: ${g_classifier}"
+	fi
+	
 	if [ -z "${g_working_dir}" ]; then
 		error_msgs+="\nERROR: working directory (--working-dir=) required"
 	else
 		log_Msg "g_working_dir: ${g_working_dir}"
 	fi
 
-	# check required environment variables
-	if [ -z "${XNAT_PBS_JOBS}" ]; then
-		error_msgs+="\nERROR: XNAT_PBS_JOBS environment variable must be set"
-	else
-		g_xnat_pbs_jobs=${XNAT_PBS_JOBS}
-		log_Msg "g_xnat_pbs_jobs: ${g_xnat_pbs_jobs}"
-	fi
-	
 	if [ ! -z "${error_msgs}" ]; then
 		usage
 		log_Err_Abort ${error_msgs}
-	fi
-}
-
-replace_symlink_with_copy()
-{
-	local file=${1}
-	if [ -L ${file} ] ; then
-		inform "Creating local/non-symbolic link version of ${file}"
-		cp -L --preserve=timestamps ${file} ${file}.TMP.NOT_A_LINK
-		rm ${file}
-		mv ${file}.TMP.NOT_A_LINK ${file}
 	fi
 }
 
@@ -130,17 +130,19 @@ main()
 	source activate ${g_python_environment} 2>&1
 
 	mkdir -p ${g_working_dir}/tmp
-	
+	mkdir -p ${g_working_dir}/${g_subject}_${g_classifier}
+
 	log_Msg "Getting CinaB-Style data"
-	${g_xnat_pbs_jobs}/lib/ccf/get_cinab_style_data.py \
+	${XNAT_PBS_JOBS}/lib/ccf/get_cinab_style_data.py \
 		--project=${g_project} \
 		--subject=${g_subject} \
+		--classifier=${g_classifier} \
 		--study-dir=${g_working_dir}/tmp \
 		--phase=multirunicafix_prereqs \
 		--remove-non-subdirs
 	
-	mv ${g_working_dir}/tmp/* ${g_working_dir}
-	rmdir ${g_working_dir}/tmp
+	find  ${g_working_dir}/tmp/${g_subject}_${g_classifier}/* -maxdepth 0 -type d ! -name "ProcessingInfo" -exec mv {} ${g_working_dir}/${g_subject}_${g_classifier} \;
+	rm -r ${g_working_dir}/tmp
 	
 	log_Msg "Complete"
 }

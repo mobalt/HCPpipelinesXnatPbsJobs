@@ -17,7 +17,7 @@ import xnat.xnat_archive as xnat_archive
 # authorship information
 __author__ = "Timothy B. Brown"
 __copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__maintainer__ = "Junil Chang"
 
 # create a module logger
 module_logger = logging.getLogger(__name__)
@@ -427,6 +427,36 @@ class CcfArchive(object):
 		path_expr = self.msmall_registration_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
+
+
+	def multirun_icafix_dir_full_path(self, subject_info):
+		"""
+		Full path to diffusion preproc resource directory
+		"""
+		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr += self.multirun_icafix_dir_name(subject_info)
+		return path_expr
+
+	def multirun_icafix_dir_name(self, subject_info):
+		# name = 'MultiRunICAFIX' + self.NAME_DELIMITER + self.FIX_PROCESSED_SUFFIX
+		# name = 'MultiRunICAFIX'
+		name = 'MultiRunIcaFix_proc'
+		return name
+
+	def available_multirun_icafix_dir_full_paths(self, subject_info):
+		"""
+		List of full paths to any resource containing preprocessed diffusion data
+		for the specified subject
+		"""
+		# path_expr = self.multirun_icafix_dir_full_path(subject_info)
+		# dir_list = glob.glob(path_expr)
+		# return sorted(dir_list)
+		path_expr = self.subject_resources_dir_full_path(subject_info)
+		path_expr += os.sep + '*' + self.FIX_PROCESSED_SUFFIX
+		dir_list = glob.glob(path_expr)
+		return sorted(dir_list)
+
+
 
 	def available_fix_processed_dir_full_paths(self, subject_info):
 		"""

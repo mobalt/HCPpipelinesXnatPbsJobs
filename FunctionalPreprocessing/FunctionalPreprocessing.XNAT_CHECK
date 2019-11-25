@@ -293,15 +293,16 @@ main()
 	put_log_file_cmd+=" --use-http"
 
 	${put_log_file_cmd}
+	shadowserver_code=$?
 	
 	popd
 
 	# clean up
-	if [ "${check_cmd_ret_code}" -eq 0 ]; then
+	if [ "${check_cmd_ret_code}" -eq 0 ] && [ "$shadowserver_code" -eq 0 ]; then
 		rm -rf ${g_working_dir}
+		log_Msg "Complete"
 	fi
-	
-	log_Msg "Complete"
+
 }
 
 # Invoke the main to get things started

@@ -315,7 +315,7 @@ main()
 			while_i=$[$while_i + 1]	
 			if [ "$while_i" -lt 60 ]; then
 				log_Msg "Sleeping for 1 minute to Check shadow servers again"
-				sleep 5
+				sleep 1m
 			elif [ "$while_i" -eq 60 ]; then
 				log_Msg "all shadow servers are down"
 				exit 3

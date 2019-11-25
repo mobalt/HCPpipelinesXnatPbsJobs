@@ -323,10 +323,45 @@ main()
     
     # Set up to run Python
     source_script ${HCP_RUN_UTILS}/ToolSetupScripts/epd-python_setup.sh
+	
+	HTTP_CODE=`curl https://${g_server} -o /dev/null -w "%{http_code}\n" -s`
+	if [ "$HTTP_CODE" != "302" ] ; then
+		numberofservers=($XNAT_PBS_JOBS_PUT_SERVER_LIST)
+		shdw_server_list_i=0
+		for shdw_server_list in ${XNAT_PBS_JOBS_PUT_SERVER_LIST}; do
+			if [[ "${shdw_server_list}" == "${g_server}" ]]; then
+				break
+			fi
+			shdw_server_list_i=$[$shdw_server_list_i + 1]
+		done
+		numberofservers_n=( ${numberofservers[@]:$shdw_server_list_i:${#numberofservers[@]}} ${numberofservers[@]:0:$shdw_server_list_i} )
+		while_i=0
+		while [ $while_i -le 60 ]; do
+			log_Msg "searching for another shadow server"
+			for shdw_server in ${numberofservers_n[@]}; do
+				HTTP_CODE1=`curl https://${shdw_server} -o /dev/null -w "%{http_code}\n" -s`
+				echo $shdw_server
+				if [ "$HTTP_CODE1" == "302" ]; then
+					g_server=${shdw_server}
+					while_i=60
+					log_Msg "switching to a New shadow Server: ${g_server}"
+					break
+				fi		
+			done
+			while_i=$[$while_i + 1]	
+			if [ "$while_i" -lt 60 ]; then
+				log_Msg "Sleeping for 1 minute to Check shadow servers again"
+				sleep 1m
+			elif [ "$while_i" -eq 60 ]; then
+				log_Msg "all shadow servers are down"
+				exit 3
+			fi			
+		done
+	fi
 
     # Get XNAT Session ID (a.k.a. the experiment ID, e.g ConnectomeDB_E1234)
     get_session_id_cmd="python ${get_session_id_script}"
-    get_session_id_cmd+=" --server=${XNAT_PBS_JOBS_XNAT_SERVER}"
+    get_session_id_cmd+=" --server=${g_server}"
     get_session_id_cmd+=" --username=${g_user}"
     get_session_id_cmd+=" --password=${g_password}"
     get_session_id_cmd+=" --project=${g_project}"

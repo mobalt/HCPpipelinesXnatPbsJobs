@@ -25,8 +25,8 @@ import utils.os_utils as os_utils
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
+__copyright__ = "Copyright 2019, Connectome Coordination Facility"
+__maintainer__ = "Junil Chang"
 
 # create a module logger
 module_logger = logging.getLogger(__name__)
@@ -261,6 +261,23 @@ class DataRetriever(object):
             # chronological order
             self.get_unproc_data(subject_info, output_dir)
 
+    def get_struct_preproc_hand_edit_prereqs(self, subject_info, output_dir):
+        """
+        Get the data necessary to run the Functional Preprocessing pipelines
+        """
+        if self.copy:
+            # when copying (via rsync), data should be retrieved in chronological order
+            # (i.e. the order in which the pipelines are run)
+            self.get_unproc_data(subject_info, output_dir)
+            self.get_structural_preproc_data(subject_info, output_dir)
+            self.get_supplemental_structural_preproc_data(subject_info, output_dir)
+        else:
+            # when creating symbolic links, data should be retrieved in reverse
+            # chronological order
+            self.get_supplemental_structural_preproc_data(subject_info, output_dir)
+            self.get_structural_preproc_data(subject_info, output_dir)
+            self.get_unproc_data(subject_info, output_dir)
+
     def get_diffusion_preproc_prereqs(self, subject_info, output_dir):
         """
         Get the data necessary to run the Diffusion Preprocessing pipeline
@@ -486,6 +503,7 @@ def main():
 
     phase_choices = [
         "STRUCT_PREPROC_PREREQS", "struct_preproc_prereqs",
+		"STRUCT_PREPROC_HAND_EDIT_PREREQS", "struct_preproc_hand_edit_prereqs",
         "DIFF_PREPROC_PREREQS", "diff_preproc_prereqs",
         "FUNC_PREPROC_PREREQS", "func_preproc_prereqs",
         "MULTIRUNICAFIX_PREREQS", "multirunicafix_prereqs",
@@ -535,6 +553,9 @@ def main():
     # retrieve data based on phase requested
     if args.phase == "STRUCT_PREPROC_PREREQS":
         data_retriever.get_struct_preproc_prereqs(subject_info, args.output_study_dir)
+
+    elif args.phase == "STRUCT_PREPROC_HAND_EDIT_PREREQS":
+        data_retriever.get_struct_preproc_hand_edit_prereqs(subject_info, args.output_study_dir)
 
     elif args.phase == "DIFF_PREPROC_PREREQS":
         data_retriever.get_diffusion_preproc_prereqs(subject_info, args.output_study_dir)

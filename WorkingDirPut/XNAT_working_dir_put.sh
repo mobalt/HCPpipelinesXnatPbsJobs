@@ -397,7 +397,13 @@ main()
 					--resource=${resource} \
 					--protocol="https" \
 					--force
-
+	shadowserver_code=$?
+	if [ ${shadowserver_code} -eq 3 ]
+	then
+		log_Msg "EXIT: all shadow servers are down".
+		exit 1
+	fi	
+	
 	# Make processing job log files readable so they can be pushed into the database
 	chmod --recursive a+r ${g_working_dir}/*
 
@@ -436,6 +442,7 @@ main()
 						--use-http \
 						--protocol="https" \
 						--force
+		shadowserver_code=$?
 
 	else
 
@@ -462,15 +469,18 @@ main()
 						--dir=${server_working_dir} \
 						--protocol="https" \
 						--force
-
+		shadowserver_code=$?
 	fi
 
-	# Cleanup
-	log_Msg "-------------------------------------------------"
-	log_Msg "Cleanup"
-	log_Msg "-------------------------------------------------"
-	log_Msg "Removing g_working_dir: ${g_working_dir}"
-	rm -rf ${g_working_dir}
+	if [ ${shadowserver_code} -eq 0 ]
+	then
+		# Cleanup
+		log_Msg "-------------------------------------------------"
+		log_Msg "Cleanup"
+		log_Msg "-------------------------------------------------"
+		log_Msg "Removing g_working_dir: ${g_working_dir}"
+		rm -rf ${g_working_dir}
+	fi	
 }
 
 # Invoke the main function to get things started
