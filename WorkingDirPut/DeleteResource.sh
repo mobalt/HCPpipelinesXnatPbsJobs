@@ -218,7 +218,6 @@ main()
 			log_Msg "searching for another shadow server"
 			for shdw_server in ${numberofservers_n[@]}; do
 				HTTP_CODE1=`curl https://${shdw_server} -o /dev/null -w "%{http_code}\n" -s`
-				echo $shdw_server
 				if [ "$HTTP_CODE1" == "302" ]; then
 					g_server=${shdw_server}
 					while_i=60
