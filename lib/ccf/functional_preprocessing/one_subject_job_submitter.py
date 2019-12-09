@@ -84,10 +84,11 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('  --working-dir=' + self.working_directory_name + ' \\' + os.linesep)
 
 		script.write(os.linesep)
-		script.write('rm -rf ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' + os.linesep)
 		script.write('find ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/ -maxdepth 1 -mindepth 1 ' )
-		script.write('-type d -not -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/' + self.scan )
-		script.write(' -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/[rt]fMRI_*_[AP][PA]\' -exec rm -rf \'{}\' \;' + os.linesep)
+		script.write('\( -type d -not -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/' + self.scan )
+		script.write(' -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/[rt]fMRI_*_[AP][PA]\'' )
+		script.write(' -o -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' )
+		script.write(' -o -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/Diffusion\' \) -exec rm -rf \'{}\' \;' + os.linesep)
 
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
@@ -109,31 +110,28 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write(os.linesep)
 		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
-		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
 		script.write(self.subject + '_' + self.classifier + ' \! -newer ' + self.starttime_file_name + ' -delete')
 		script.write(os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
-		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
 		script.write(self.subject + '_' + self.classifier + os.path.sep + '* ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
-					
-		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + 'specs ')
-		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'processing ')
-		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)		
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + 'specs ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'info' + os.path.sep + 'hcpls ')
-		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'subject_hcp.txt ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcpls' + os.path.sep  + 'hcpls2nii.log ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
-		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T1w/*"')
-		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo/*"')
-		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear/*"')
-		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.scan + '/*"')
-		script.write(' -delete')
+		script.write(' -maxdepth 1 -mindepth 1 \( -type d -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T1w')
+		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo')
+		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear')
+		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.scan)
+		script.write(' \) -exec rm -rf \'{}\' \;')
 		script.write(os.linesep)
 		script.write('echo "Removing any XNAT catalog files still around."' + os.linesep)
 		script.write('find ' + self.working_directory_name + ' -name "*_catalog.xml" -delete')
@@ -143,7 +141,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
-
 
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
