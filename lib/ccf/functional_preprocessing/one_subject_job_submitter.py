@@ -108,11 +108,12 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
 		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
 		script.write(os.linesep)
-		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
 		script.write(self.subject + '_' + self.classifier + ' \! -newer ' + self.starttime_file_name + ' -delete')
 		script.write(os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
 		script.write(self.subject + '_' + self.classifier + os.path.sep + '* ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'processing ')
