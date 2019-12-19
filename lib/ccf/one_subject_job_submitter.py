@@ -362,7 +362,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
@@ -375,12 +374,9 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --project=' + self.project + ' \\' + os.linesep)
 		script.write('  --subject=' + self.subject + ' \\' + os.linesep)
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
-
 		if self.scan:
-			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
-			
+			script.write('  --scan=' + self.scan + ' \\' + os.linesep)			
 		script.write('  --working-dir=' + self.working_directory_name + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -398,7 +394,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=12gb' + os.linesep)
 		script.write('#PBS -o ' + self.log_dir + os.linesep)
 		script.write('#PBS -e ' + self.log_dir + os.linesep)
@@ -417,15 +412,12 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --subject="' + self.subject + '" \\' + os.linesep)
 		script.write('  --session="' + self.session + '" \\' + os.linesep)
 		script.write('  --working-dir="' + self.working_directory_name + '" \\' + os.linesep)
-
 		if self.scan:
 			script.write('  --scan="' + self.scan + '" \\' + os.linesep)
 			script.write('  --resource-suffix="' + self.output_resource_suffix + '" \\' + os.linesep)
 		else:
-			script.write('  --resource-suffix="' + self.output_resource_name + '" \\' + os.linesep)
-			
+			script.write('  --resource-suffix="' + self.output_resource_name + '" \\' + os.linesep)	
 		script.write('  --reason="' + self.PIPELINE_NAME + '"' + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -467,7 +459,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
 		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
 		script.write(os.linesep)
-		
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
 		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T*w ')
@@ -482,7 +473,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcpls' + os.path.sep  + 'hcpls2nii.log ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
-		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T*w/*"')
 		script.write(' -not -path "' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo/*"')
@@ -494,7 +484,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write(os.linesep)
 		script.write('echo "Remaining files:"' + os.linesep)
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -548,7 +537,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.log_dir + os.linesep)
@@ -570,9 +558,7 @@ class OneSubjectJobSubmitter(abc.ABC):
 			subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
 			fieldmap_type_line = '  --fieldmap=' + 'NONE' 
 			script.write(fieldmap_type_line + ' \\' + os.linesep)
-		
 		script.write('  --working-dir=' + self.check_data_directory_name + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 		
@@ -607,7 +593,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.log_dir + os.linesep)
@@ -629,7 +614,6 @@ class OneSubjectJobSubmitter(abc.ABC):
 		script.write('  --done' + os.linesep)
 		script.write(os.linesep)
 		script.write("rm -rf " + self.mark_completion_directory_name)
-		
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 			

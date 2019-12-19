@@ -64,7 +64,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
@@ -77,19 +76,15 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('  --project=' + self.project + ' \\' + os.linesep)
 		script.write('  --subject=' + self.subject + ' \\' + os.linesep)
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
-
 		if self.scan:
 			script.write('  --scan=' + self.scan + ' \\' + os.linesep)
-			
 		script.write('  --working-dir=' + self.working_directory_name + ' \\' + os.linesep)
-
 		script.write(os.linesep)
 		script.write('find ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/ -maxdepth 1 -mindepth 1 ' )
 		script.write('\( -type d -not -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/' + self.scan )
 		script.write(' -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/[rt]fMRI_*_[AP][PA]\'' )
 		script.write(' -o -path ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' )
 		script.write(' -o -path \'' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/Diffusion\' \) -exec rm -rf \'{}\' \;' + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -102,7 +97,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
@@ -126,7 +120,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
 		script.write('cp ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcpls' + os.path.sep  + 'hcpls2nii.log ')
 		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.path.sep + 'processing' + os.linesep)
-		
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -maxdepth 1 -mindepth 1 \( -type d -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T1w')
 		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo')
@@ -139,7 +132,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write(os.linesep)
 		script.write('echo "Remaining files:"' + os.linesep)
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
-
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -166,14 +158,11 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
-
-		xnat_pbs_setup_line = 'source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name()
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
 		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
-		
 		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
 		scan_line   = '  --scan=' + self.scan
@@ -187,16 +176,13 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_line + os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
-			
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
-			
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(scan_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
-			script.write(hcppipelineprocess_line + os.linesep)
-			
+			script.write(hcppipelineprocess_line + os.linesep)	
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 			
 	def mark_running_status(self, stage):

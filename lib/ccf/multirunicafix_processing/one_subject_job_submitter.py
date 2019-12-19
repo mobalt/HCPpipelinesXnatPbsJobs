@@ -102,7 +102,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			os.remove(script_name)
 
 		script = open(script_name, 'w')
-
 		self._write_bash_header(script)
 		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
 		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
@@ -120,7 +119,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
-
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
 
@@ -136,23 +134,17 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		walltime_limit_str = str(self.walltime_limit_hours) + ':00:00'
 		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
-
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
 		resources_line += ':ppn=' + str(self.WORK_PPN)
 		resources_line += ',walltime=' + walltime_limit_str
 		resources_line += ',vmem=' + vmem_limit_str
-
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
-
-		xnat_pbs_setup_line = 'source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name()
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
-		
 		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
-		
 		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
 		overwrite_line = '  --overwrite=yes'
@@ -165,10 +157,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_line + os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
-			
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
-			
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
@@ -178,7 +168,6 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 				for aaa in self._group_list:
 					script.write('  --group=' + aaa + ' \\' + os.linesep)
 			script.write(hcppipelineprocess_line + os.linesep)
-			
 			script.close()
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
