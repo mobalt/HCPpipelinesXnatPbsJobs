@@ -336,6 +336,14 @@ class OneSubjectJobSubmitter(abc.ABC):
 		xnat_pbs_setup_singularity_bind = os_utils.getenv_required('SINGULARITY_BIND_PATH')
 		return xnat_pbs_setup_singularity_bind
 	
+	def _get_xnat_pbs_setup_script_singularity_qunexrun_path(self):
+		xnat_pbs_setup_singularity_qunexrun_path = os_utils.getenv_required('SINGULARITY_QUNEXRUN_PATH')
+		return xnat_pbs_setup_singularity_qunexrun_path
+		
+	def _get_xnat_pbs_setup_script_singularity_qunexparameter_path(self):
+		xnat_pbs_setup_singularity_qunexparameter_path = os_utils.getenv_required('SINGULARITY_QUNEXPARAMETER_PATH')
+		return xnat_pbs_setup_singularity_qunexparameter_path
+	
 	def _get_xnat_pbs_setup_script_gradient_coefficient_path(self):
 		xnat_pbs_setup_gradient_coefficient = os_utils.getenv_required('GRADIENT_COEFFICIENT_PATH')
 		return xnat_pbs_setup_gradient_coefficient
