@@ -28,7 +28,7 @@ import ccf.subject as ccf_subject
 
 # authorship information
 __author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2019, The Connectome Coordination Facility (CCF)"
+__copyright__ = "Copyright 2020, The Connectome Coordination Facility (CCF)"
 __maintainer__ = "Junil Chang"
 
 # create a module logger
