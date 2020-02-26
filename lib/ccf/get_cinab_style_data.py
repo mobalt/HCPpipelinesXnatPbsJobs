@@ -153,6 +153,12 @@ class DataRetriever(object):
         self._get_preprocessed_data(
             self.archive.available_structural_preproc_dir_full_paths(subject_info),
             output_dir)
+	
+    def get_structural_preproc_hand_edit_data(self, subject_info, output_dir):
+        module_logger.debug(debug_utils.get_name())
+        self._get_preprocessed_data(
+            self.archive.available_structural_preproc_hand_edit_dir_full_paths(subject_info),
+            output_dir)
 
     def get_supplemental_structural_preproc_data(self, subject_info, output_dir):
         module_logger.debug(debug_utils.get_name())
@@ -270,11 +276,13 @@ class DataRetriever(object):
             # (i.e. the order in which the pipelines are run)
             self.get_unproc_data(subject_info, output_dir)
             self.get_structural_preproc_data(subject_info, output_dir)
+            self.get_structural_preproc_hand_edit_data(subject_info, output_dir)
             self.get_supplemental_structural_preproc_data(subject_info, output_dir)
         else:
             # when creating symbolic links, data should be retrieved in reverse
             # chronological order
             self.get_supplemental_structural_preproc_data(subject_info, output_dir)
+            self.get_structural_preproc_hand_edit_data(subject_info, output_dir)
             self.get_structural_preproc_data(subject_info, output_dir)
             self.get_unproc_data(subject_info, output_dir)
 
