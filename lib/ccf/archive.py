@@ -334,7 +334,7 @@ class CcfArchive(object):
 		path_expr = self.structural_preproc_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
-
+		
 	def supplemental_structural_preproc_dir_full_path(self, subject_info):
 		"""
 		Full path to supplemental structural preproc resource directory
@@ -350,6 +350,28 @@ class CcfArchive(object):
 		data for the specified subject
 		"""
 		path_expr = self.supplemental_structural_preproc_dir_full_path(subject_info)
+		dir_list = glob.glob(path_expr)
+		return sorted(dir_list)
+		
+	def structural_preproc_hand_edit_dir_full_path(self, subject_info):
+		"""
+		Full path to structural preproc resource directory
+		"""
+		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr += self.structural_preproc_hand_edit_dir_name(subject_info)
+		path_expr += os.sep + 'T1w'
+		return path_expr
+
+	def structural_preproc_hand_edit_dir_name(self, subject_info):
+		name = 'Structural' + self.NAME_DELIMITER + 'Hand_Edit'
+		return name
+	
+	def available_structural_preproc_hand_edit_dir_full_paths(self, subject_info):
+		"""
+		List of full paths to any resource containing preprocessed structural data
+		for the specified subject
+		"""
+		path_expr = self.structural_preproc_hand_edit_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
