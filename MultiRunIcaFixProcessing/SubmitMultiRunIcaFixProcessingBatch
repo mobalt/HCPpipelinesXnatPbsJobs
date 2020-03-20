@@ -16,6 +16,6 @@ fi
 source ${HCP_RUN_UTILS}/shlib/utils.shlib
 set_g_python_environment
 source activate ${g_python_environment} 2>/dev/null
-${XNAT_PBS_JOBS}/lib/ccf/multirunicafix_processing/SubmitMultiRunIcaFixProcessingBatch.py 
+${XNAT_PBS_JOBS}/lib/ccf/multirunicafix_processing/SubmitMultiRunIcaFixProcessingBatch.py ${2} 
 source deactivate 2>/dev/null
 

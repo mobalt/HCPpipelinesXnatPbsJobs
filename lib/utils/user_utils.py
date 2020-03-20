@@ -28,11 +28,11 @@ def get_credentials_from_credentials_file(system_id):
     if not home_dir:
         return (None, None)
 
-    credentials_file_name = home_dir + os.sep + '.' + system_id + '.credentials'
+    credentials_file_name = home_dir + os.sep + '.xnat.credentials'
 
     if not os.path.isfile(credentials_file_name):
         return (None, None)
-    
+
     config = my_configparser.MyConfigParser()
     config.read(credentials_file_name)
 

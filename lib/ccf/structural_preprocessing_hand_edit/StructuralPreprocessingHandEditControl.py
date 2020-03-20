@@ -233,7 +233,7 @@ class ControlPanelWidget(QWidget):
 			
 		else:
 			if self._login.exec_() == QDialog.Accepted:
-				SubmitStructuralPreprocessingBatch.do_submissions(
+				SubmitStructuralPreprocessingHandEditBatch.do_submissions(
 					self._login.username, self._login.password, launch_subject_list)
 				self.on_refresh_click()	
 		# else:

@@ -169,7 +169,10 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name() + os.linesep)
 		script.write('module load ' + self._get_xnat_pbs_setup_script_singularity_version() + os.linesep)
 		script.write(os.linesep)
-		script.write('singularity exec -B ' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_container_xnat_path() + ' ' + self.get_data_program_path  + ' \\' + os.linesep)
+		script.write('singularity exec -B ')
+		## TEMPORARY ##
+		script.write('/home/hodgem/pipeline_tools/HCPpipelinesXnatPbsJobs:/pipeline_tools/xnat_pbs_jobs,')
+		script.write(self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_container_xnat_path() + ' ' + self.get_data_program_path  + ' \\' + os.linesep)
 		script.write('  --project=' + self.project + ' \\' + os.linesep)
 		script.write('  --subject=' + self.subject + ' \\' + os.linesep)
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
@@ -186,6 +189,13 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		
 		script.write(os.linesep)
 		script.write('rm -rf ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/unprocessed/T1w_MPR_vNav_4e_RMS' + os.linesep)
+
+		script.write('### Convert FreeSurfer output from links to files for rerun' + os.linesep) 
+		script.write('#if [ -d "' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/' + self.subject + '_' + self.classifier + '/T1w/' + self.subject + '_' + self.classifier + '" ] ; then ' + os.linesep) 
+		script.write('#	pushd ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '/' + self.subject + '_' + self.classifier + '/T1w/' + self.subject + '_' + self.classifier + os.linesep) 
+		script.write('#	find . -type l | xargs -I \'{}\' sh -c \'cp --remove-destination $(readlink {}) {}\'' + os.linesep)
+		script.write('#	popd' + os.linesep)
+		script.write('#fi' + os.linesep)
 
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
@@ -361,11 +371,17 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		xnat_pbs_setup_line = 'source ' + self._get_xnat_pbs_setup_script_path() + ' ' + self._get_db_name()
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
 		
-		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
+											## PREVIOUS LINE IS TEMPORARY ##
+											## TEMPORARY ##
+											##+ '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
+		xnat_pbs_setup_singularity_process = 'singularity exec -B ' \
+											+ '/home/hodgem/pipeline_tools/HCPpipelinesXnatPbsJobs:/pipeline_tools/xnat_pbs_jobs,' \
+											+ xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
-											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
-		
+											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' \
+											+ '/home/hodgem/hand_edit_test/run_qunex_test.sh'
+		parameter_line   = '  --parameterfolder=' + self._get_xnat_pbs_setup_script_singularity_qunexparameter_path()
 		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
 		#hcpdatapath_line   = '  --hcpdatapath=' + self.working_directory_name
@@ -385,6 +401,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
 			
+			script.write(parameter_line + ' \\' + os.linesep)
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			#script.write(hcpdatapath_line + ' \\' + os.linesep)

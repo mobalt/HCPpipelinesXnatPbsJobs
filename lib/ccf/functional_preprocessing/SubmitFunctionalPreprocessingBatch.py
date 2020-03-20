@@ -4,6 +4,7 @@
 import logging
 import os
 import random
+import sys
 # import of third-party modules
 
 # import of local modules
@@ -128,9 +129,20 @@ if __name__ == '__main__':
 	userid, password = user_utils.get_credentials(xnat_server)
 
 	# get list of subjects to process
-	subject_file_name = file_utils.get_subjects_file_name(__file__)
-	print("Retrieving subject list from: " + subject_file_name)
-	subject_list = ccf_subject.read_subject_info_list(subject_file_name, separator=":")
+	subjectArg = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1].count(":")>1 else None
+	if (subjectArg):
+		# Pull from first argument if passed
+		print("Retrieving subject list passed argument: " + subjectArg)
+		subject_list = []
+		subjectArg = subjectArg.strip()
+		(project, subject_id, classifier, extra) = subjectArg.split(":")
+		subject_info = ccf_subject.SubjectInfo(project, subject_id, classifier, extra)
+		subject_list.append(subject_info)
+	else:
+		# Otherwise, pull from file
+		print("Retrieving subject list from: " + subject_file_name)
+		subject_file_name = file_utils.get_subjects_file_name(__file__)
+		subject_list = ccf_subject.read_subject_info_list(subject_file_name, separator=":")
 
 	do_submissions(userid, password, subject_list)
 

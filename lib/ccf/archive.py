@@ -325,6 +325,17 @@ class CcfArchive(object):
 	def structural_preproc_dir_name(self, subject_info):
 		name = 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX
 		return name
+
+	def available_hand_edit_full_paths(self, subject_info):
+		"""
+		List of full paths to any resource containing preprocessed functional data
+		for the specified subject
+		"""
+		path_expr = self.subject_resources_dir_full_path(subject_info)
+		path_expr += os.sep + 'Structural_Hand_Edit'
+		dir_list = glob.glob(path_expr)
+		#raise Exception('stop','here')
+		return sorted(dir_list)
 	
 	def available_structural_preproc_dir_full_paths(self, subject_info):
 		"""
@@ -395,6 +406,7 @@ class CcfArchive(object):
 		path_expr = self.diffusion_preproc_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
+
 
 	def available_functional_preproc_dir_full_paths(self, subject_info):
 		"""
