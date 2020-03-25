@@ -60,9 +60,6 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			vmem_limit_gbs = config.get_value(subject.subject_id, 'VmemLimitGbs')
 			output_resource_suffix = config.get_value(subject.subject_id, 'OutputResourceSuffix')
 
-			groups = config.get_values(subject.subject_id, 'group')
-			groups.sort()
-			
 			print("-----")
 			print("\tSubmitting", submitter.PIPELINE_NAME, "jobs for:")
 			print("\t			   project:", subject.project)
@@ -73,10 +70,6 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			print("\t	walltime_limit_hrs:", walltime_limit_hrs)
 			print("\t		vmem_limit_gbs:", vmem_limit_gbs)
 			print("\toutput_resource_suffix:", output_resource_suffix)
-			# for group in groups:
-				# print("\t			group:", group)
-			print("\t			group:", groups)
-			
 			
 			# user and server information
 			submitter.username = username
@@ -89,8 +82,6 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			submitter.session = subject.subject_id + '_' + subject.classifier
 			submitter.classifier = subject.classifier
 			
-			submitter.groups = groups
-		
 			# job parameters
 			submitter.clean_output_resource_first = clean_output_first
 			submitter.put_server = put_server
@@ -141,8 +132,8 @@ if __name__ == '__main__':
 		subject_list.append(subject_info)
 	else:
 		# Otherwise, pull from file
-		print("Retrieving subject list from: " + subject_file_name)
 		subject_file_name = file_utils.get_subjects_file_name(__file__)
+		print("Retrieving subject list from: " + subject_file_name)
 		subject_list = ccf_subject.read_subject_info_list(subject_file_name, separator=":")
 
 	do_submissions(userid, password, subject_list)

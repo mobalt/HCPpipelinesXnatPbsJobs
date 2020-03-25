@@ -46,34 +46,24 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 	@property
 	def WORK_PPN(self):
 		return 1
-		
+	
 	@property
 	def groups(self):
-		return self._groups
+		subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
+		preproc_dirs = self.archive.available_functional_preproc_dir_full_paths(subject_info)
+		groupsA = []
+		for preproc_dir in preproc_dirs:
+			groupsA.append(preproc_dir[preproc_dir.rindex(os.sep)+1:preproc_dir.index("_preproc")])
+		groupsA.sort()
+		return groupsA
 
-	@groups.setter
-	def groups(self, value):
-		self._groups = value
-		module_logger.debug(debug_utils.get_name() + ": set to " + str(self._groups))
-
-	def _add_mri_prefix(self, scan_name):
-		if scan_name.startswith('REST'):
-			return 'rfMRI_' + scan_name
-		else:
-			return 'tfMRI_' + scan_name
-
-	def _expand(self, group):
-		original_scan_name_list = group.split(sep=' ')
-		new_scan_name_list = []
-		for scan_name in original_scan_name_list:
-			new_scan_name = self._add_mri_prefix(scan_name)
-			new_scan_name_list.append(new_scan_name)
-
-		result = ''
-		for scan_name in new_scan_name_list:
-			result += scan_name + '@'
-
-		return result.strip('@')
+	def _expand(self, group, include_tfmri):
+		result = 'fMRI_ALL_CONCAT:' if include_tfmri else 'fMRI_REST_CONCAT'
+		for scan_name in self.groups:
+			if (not(include_tfmri) and 'tfmri' in scan_name.lower()):
+				continue
+			result += scan_name + ','
+		return result.strip(',')
 
 	def _concat(self, group):
 		scan_name_list = group.split(sep='@')
@@ -145,6 +135,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
+		# NOT needed for ICA-FIX?
+		#parameter_line   = '  --parameterfolder=' + self._get_xnat_pbs_setup_script_singularity_qunexparameter_path()
 		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
 		overwrite_line = '  --overwrite=yes'
@@ -158,14 +150,14 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
+			# NOT needed for ICA-FIX?
+			#script.write(parameter_line + ' \\' + os.linesep)
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
 			self._group_list = []
-			for group in self.groups:
-				self._group_list.append(self._expand(group))
-				for aaa in self._group_list:
-					script.write('  --group=' + aaa + ' \\' + os.linesep)
+			script.write('  --icafixbolds=' + self._expand(self.groups, True) + ' \\' + os.linesep)
+			script.write('  --reapplyfixbolds=' + self._expand(self.groups, False) + ' \\' + os.linesep)
 			script.write(hcppipelineprocess_line + os.linesep)
 			script.close()
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
@@ -222,7 +214,7 @@ if __name__ == "__main__":
 	walltime_limit_hrs = sys.argv[6]
 	vmem_limit_gbs = sys.argv[7]
 	output_resource_suffix = sys.argv[8]
-	group_list = sys.argv[9]
+	#group_list = sys.argv[9]
 	
 	
 	print("-----")
