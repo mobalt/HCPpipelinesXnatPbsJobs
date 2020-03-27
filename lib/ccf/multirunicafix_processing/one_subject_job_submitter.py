@@ -57,13 +57,11 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		groupsA.sort()
 		return groupsA
 
-	def _expand(self, group, include_tfmri):
-		result = 'fMRI_ALL_CONCAT:' if include_tfmri else 'fMRI_REST_CONCAT'
+	def _expand(self, group):
+		result = ''
 		for scan_name in self.groups:
-			if (not(include_tfmri) and 'tfmri' in scan_name.lower()):
-				continue
-			result += scan_name + ','
-		return result.strip(',')
+			result += scan_name + '|'
+		return result.strip('|')
 
 	def _concat(self, group):
 		scan_name_list = group.split(sep='@')
@@ -124,18 +122,24 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 
 		walltime_limit_str = str(self.walltime_limit_hours) + ':00:00'
 		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
+		mem_limit_str = str(self.mem_limit_gbs) + 'gb'
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
 		resources_line += ':ppn=' + str(self.WORK_PPN)
+		resources_line += ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
 		resources_line += ',vmem=' + vmem_limit_str
+		resources_line += ',mem=' + mem_limit_str
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
 		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
-											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
-											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + '/opt/xnat_pbs_jobs_control/run_qunex.sh' 
-		# NOT needed for ICA-FIX?
+										+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
+										+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_qunexrun_path()
+		#xnat_pbs_setup_singularity_process = '/opt/xnat_pbs_jobs_control/run_qunexContainer.sh' 
+		#xnat_pbs_setup_singularity_process = self._get_xnat_pbs_setup_script_singularity_qunexrun_path()
+		#container_line   = '  --containerpath=' + self._get_xnat_pbs_setup_script_singularity_container_path()
+		## Per MH, parameterfolder is irrelevant to MR-FIX
 		#parameter_line   = '  --parameterfolder=' + self._get_xnat_pbs_setup_script_singularity_qunexparameter_path()
 		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
@@ -150,14 +154,14 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
-			# NOT needed for ICA-FIX?
+			## Per MH, parameterfolder is irrelevant to MR-FIX
 			#script.write(parameter_line + ' \\' + os.linesep)
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
+			#script.write(container_line + ' \\' + os.linesep)
 			self._group_list = []
-			script.write('  --icafixbolds=' + self._expand(self.groups, True) + ' \\' + os.linesep)
-			script.write('  --reapplyfixbolds=' + self._expand(self.groups, False) + ' \\' + os.linesep)
+			script.write('  --boldlist="' + self._expand(self.groups) + '" \\' + os.linesep)
 			script.write(hcppipelineprocess_line + os.linesep)
 			script.close()
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
@@ -213,8 +217,9 @@ if __name__ == "__main__":
 	processing_stage = submitter.processing_stage_from_string(processing_stage_str)
 	walltime_limit_hrs = sys.argv[6]
 	vmem_limit_gbs = sys.argv[7]
-	output_resource_suffix = sys.argv[8]
-	#group_list = sys.argv[9]
+	mem_limit_gbs = sys.argv[8]
+	output_resource_suffix = sys.argv[9]
+	#group_list = sys.argv[10]
 	
 	
 	print("-----")
@@ -226,7 +231,8 @@ if __name__ == "__main__":
 	print("\t	clean_output_first:", clean_output_first)
 	print("\t	  processing_stage:", processing_stage)
 	print("\t	walltime_limit_hrs:", walltime_limit_hrs)
-	print("\t		mem_limit_gbs:", vmem_limit_gbs)
+	print("\t		vmem_limit_gbs:", vmem_limit_gbs)
+	print("\t		mem_limit_gbs:", mem_limit_gbs)
 	print("\toutput_resource_suffix:", output_resource_suffix)
 
 	
@@ -249,6 +255,7 @@ if __name__ == "__main__":
 	submitter.put_server = put_server
 	submitter.walltime_limit_hours = walltime_limit_hrs
 	submitter.vmem_limit_gbs = vmem_limit_gbs
+	submitter.mem_limit_gbs = mem_limit_gbs
 	submitter.output_resource_suffix = output_resource_suffix
 
 	# submit jobs
