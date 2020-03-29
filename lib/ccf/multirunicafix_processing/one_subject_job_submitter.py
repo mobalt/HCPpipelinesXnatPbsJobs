@@ -107,6 +107,50 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
+	def create_clean_data_script(self):
+		module_logger.debug(debug_utils.get_name())
+
+		script_name = self.clean_data_script_name
+
+		with contextlib.suppress(FileNotFoundError):
+			os.remove(script_name)
+
+		script = open(script_name, 'w')
+
+		self._write_bash_header(script)
+		script.write('#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=4gb' + os.linesep)
+		script.write('#PBS -o ' + self.working_directory_name + os.linesep)
+		script.write('#PBS -e ' + self.working_directory_name + os.linesep)
+		script.write(os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
+		script.write(self.subject + '_' + self.classifier + ' \! -newer ' + self.starttime_file_name + ' -delete')
+		script.write(os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep)
+		script.write('subjects' + os.path.sep + self.subject + '_' + self.classifier + os.path.sep  + 'hcp' + os.path.sep)
+		script.write(self.subject + '_' + self.classifier + os.path.sep + '* ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'processing ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)		
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'subjects' + os.path.sep + 'specs ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('mv ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'info' + os.path.sep + 'hcpls ')
+		script.write(self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo' + os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
+		script.write(' -maxdepth 1 -mindepth 1 \( -type d -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo')
+		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear')
+		script.write(' \) -exec rm -rf \'{}\' \;')
+		script.write(os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + " -type d -empty -delete")
+		script.write(os.linesep)
+		script.write('echo "Removing any XNAT catalog files still around."' + os.linesep)
+		script.write('find ' + self.working_directory_name + ' -name "*_catalog.xml" -delete')
+		script.write(os.linesep)
+		script.write('echo "Remaining files:"' + os.linesep)
+		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.linesep)
+		script.close()
+		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
+
 	def create_process_data_job_script(self):
 		module_logger.debug(debug_utils.get_name())
 
@@ -125,7 +169,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		mem_limit_str = str(self.mem_limit_gbs) + 'gb'
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
 		resources_line += ':ppn=' + str(self.WORK_PPN)
-		resources_line += ':haswell'
+		## FIX shouldn't be limited to haswell cores
+		#resources_line += ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
 		resources_line += ',vmem=' + vmem_limit_str
 		resources_line += ',mem=' + mem_limit_str
