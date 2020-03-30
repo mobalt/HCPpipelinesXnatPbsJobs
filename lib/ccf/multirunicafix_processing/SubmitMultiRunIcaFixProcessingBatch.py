@@ -57,7 +57,8 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			processing_stage_str = config.get_value(subject.subject_id, 'ProcessingStage')
 			processing_stage = submitter.processing_stage_from_string(processing_stage_str)
 			walltime_limit_hrs = config.get_value(subject.subject_id, 'WalltimeLimitHours')
-			vmem_limit_gbs = config.get_value(subject.subject_id, 'VmemLimitGbs')
+			## Using mem option instead of vmem for icafix
+			#vmem_limit_gbs = config.get_value(subject.subject_id, 'VmemLimitGbs')
 			mem_limit_gbs = config.get_value(subject.subject_id, 'MemLimitGbs')
 			output_resource_suffix = config.get_value(subject.subject_id, 'OutputResourceSuffix')
 
@@ -69,7 +70,7 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			print("\t			put_server:", put_server)
 			print("\t	  processing_stage:", processing_stage)
 			print("\t	walltime_limit_hrs:", walltime_limit_hrs)
-			print("\t		vmem_limit_gbs:", vmem_limit_gbs)
+			#print("\t		vmem_limit_gbs:", vmem_limit_gbs)
 			print("\t		mem_limit_gbs:", mem_limit_gbs)
 			print("\toutput_resource_suffix:", output_resource_suffix)
 			
@@ -88,7 +89,7 @@ class BatchSubmitter(batch_submitter.BatchSubmitter):
 			submitter.clean_output_resource_first = clean_output_first
 			submitter.put_server = put_server
 			submitter.walltime_limit_hours = walltime_limit_hrs
-			submitter.vmem_limit_gbs = vmem_limit_gbs
+			#submitter.vmem_limit_gbs = vmem_limit_gbs
 			submitter.mem_limit_gbs = mem_limit_gbs
 			submitter.output_resource_suffix = output_resource_suffix
 

@@ -165,14 +165,15 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			os.remove(script_name)
 
 		walltime_limit_str = str(self.walltime_limit_hours) + ':00:00'
-		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
+		## Using mem option instead of vmem for IcaFix	
+		#vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
 		mem_limit_str = str(self.mem_limit_gbs) + 'gb'
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
 		resources_line += ':ppn=' + str(self.WORK_PPN)
 		## FIX shouldn't be limited to haswell cores
 		#resources_line += ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
-		resources_line += ',vmem=' + vmem_limit_str
+		#resources_line += ',vmem=' + vmem_limit_str
 		resources_line += ',mem=' + mem_limit_str
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
@@ -261,9 +262,9 @@ if __name__ == "__main__":
 	processing_stage_str = sys.argv[5]
 	processing_stage = submitter.processing_stage_from_string(processing_stage_str)
 	walltime_limit_hrs = sys.argv[6]
-	vmem_limit_gbs = sys.argv[7]
-	mem_limit_gbs = sys.argv[8]
-	output_resource_suffix = sys.argv[9]
+	#vmem_limit_gbs = sys.argv[7]
+	mem_limit_gbs = sys.argv[7]
+	output_resource_suffix = sys.argv[8]
 	#group_list = sys.argv[10]
 	
 	
@@ -276,7 +277,7 @@ if __name__ == "__main__":
 	print("\t	clean_output_first:", clean_output_first)
 	print("\t	  processing_stage:", processing_stage)
 	print("\t	walltime_limit_hrs:", walltime_limit_hrs)
-	print("\t		vmem_limit_gbs:", vmem_limit_gbs)
+	#print("\t		vmem_limit_gbs:", vmem_limit_gbs)
 	print("\t		mem_limit_gbs:", mem_limit_gbs)
 	print("\toutput_resource_suffix:", output_resource_suffix)
 
@@ -299,7 +300,7 @@ if __name__ == "__main__":
 	submitter.clean_output_resource_first = clean_output_first
 	submitter.put_server = put_server
 	submitter.walltime_limit_hours = walltime_limit_hrs
-	submitter.vmem_limit_gbs = vmem_limit_gbs
+	#submitter.vmem_limit_gbs = vmem_limit_gbs
 	submitter.mem_limit_gbs = mem_limit_gbs
 	submitter.output_resource_suffix = output_resource_suffix
 
