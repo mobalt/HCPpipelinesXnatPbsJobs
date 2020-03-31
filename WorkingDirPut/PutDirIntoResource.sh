@@ -443,9 +443,9 @@ main()
         variable_values+="&replace=true"
         variable_values+="&event_reason=${g_reason}"
 	if [ -z "${XNAT_PBS_JOBS_SHADOWS_SUBDIR}" ]; then 
-        	variable_values+="&reference=${XNAT_PBS_JOBS_SHADOWS_ROOT}/chpc/BUILD/${g_user}/${g_project}/${workfolder}"
+        	variable_values+="&reference=${XNAT_PBS_JOBS_SHADOWS_ROOT}/chpc/BUILD/${USER}/${g_project}/${workfolder}"
 	else 
-        	variable_values+="&reference=${XNAT_PBS_JOBS_SHADOWS_ROOT}/chpc/BUILD/${g_user}/${XNAT_PBS_JOBS_SHADOWS_SUBDIR}/${g_project}/${workfolder}"
+        	variable_values+="&reference=${XNAT_PBS_JOBS_SHADOWS_ROOT}/chpc/BUILD/${USER}/${XNAT_PBS_JOBS_SHADOWS_SUBDIR}/${g_project}/${workfolder}"
 	fi
 
         resource_uri="${resource_url}${variable_values}"
