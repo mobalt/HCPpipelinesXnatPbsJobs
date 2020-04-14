@@ -177,8 +177,11 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		resources_line += ',mem=' + mem_limit_str
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
+		scratch_tmpdir = '/scratch/hodgem/singularity/tmp/' + self.subject + "_" + self.classifier;
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
+		make_scratch_tmpdir = 'mkdir  -p ' + scratch_tmpdir
 		xnat_pbs_setup_singularity_process = 'singularity exec -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control' \
+										+ ',' + scratch_tmpdir + ':/tmp' \
 											+ ',' + self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 										+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 										+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_qunexrun_path()
@@ -198,6 +201,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(stderr_line + os.linesep)
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
+			script.write(make_scratch_tmpdir + os.linesep)
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
 			## Per MH, parameterfolder is irrelevant to MR-FIX
