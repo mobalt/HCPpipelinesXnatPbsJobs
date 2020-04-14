@@ -142,6 +142,7 @@ if __name__ == '__main__':
 	# subject/session and to go ahead and submit the jobs anyhow.
 	parser.add_argument('-f', '--force-job-submission', dest='force_job_submission', action='store_true',
 						required=False, default=False)
+	parser.add_argument('-s', '--subject-info', dest='subject_info', type=str, action='store', required=False, default=False)
 	
 	# parse the command line arguments
 	args = parser.parse_args()
@@ -151,7 +152,8 @@ if __name__ == '__main__':
 	userid, password = user_utils.get_credentials(xnat_server)
 	
 	# get list of subjects to process
-	subjectArg = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1].count(":")>1 else None
+	subjectArg = args.subject_info
+	
 	if (subjectArg):
 		# Pull from first argument if passed
 		print("Retrieving subject list passed argument: " + subjectArg)
@@ -162,8 +164,8 @@ if __name__ == '__main__':
 		subject_list.append(subject_info)
 	else:
 		# Otherwise, pull from file
-		print("Retrieving subject list from: " + subject_file_name)
 		subject_file_name = file_utils.get_subjects_file_name(__file__)
+		print("Retrieving subject list from: " + subject_file_name)
 		subject_list = ccf_subject.read_subject_info_list(subject_file_name, separator=":")
 
 	do_submissions(userid, password, subject_list, args.force_job_submission)
