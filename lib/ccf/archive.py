@@ -332,7 +332,8 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'Structural_Hand_Edit'
+		path_expr += 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX + self.NAME_DELIMITER + "handedit"
+		#path_expr += os.sep + 'Structural_Hand_Edit'
 		dir_list = glob.glob(path_expr)
 		#raise Exception('stop','here')
 		return sorted(dir_list)
@@ -370,11 +371,10 @@ class CcfArchive(object):
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
 		path_expr += self.structural_preproc_hand_edit_dir_name(subject_info)
-		path_expr += os.sep + 'T1w'
 		return path_expr
 
 	def structural_preproc_hand_edit_dir_name(self, subject_info):
-		name = 'Structural' + self.NAME_DELIMITER + 'Hand_Edit'
+		name = 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX + self.NAME_DELIMITER + "handedit"
 		return name
 	
 	def available_structural_preproc_hand_edit_dir_full_paths(self, subject_info):
@@ -463,6 +463,32 @@ class CcfArchive(object):
 		return sorted(dir_list)
 
 
+	def msm_all_dir_full_path(self, subject_info):
+		"""
+		Full path to diffusion preproc resource directory
+		"""
+		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr += self.msm_all_dir_name(subject_info)
+		return path_expr
+
+	def msm_all_dir_name(self, subject_info):
+		name = 'MsmAll_proc'
+		return name
+
+	#def available_msm_all_dir_full_paths(self, subject_info):
+	#	"""
+	#	List of full paths to any resource containing preprocessed diffusion data
+	#	for the specified subject
+	#	"""
+	#	# path_expr = self.msm_all_dir_full_path(subject_info)
+	#	# dir_list = glob.glob(path_expr)
+	#	# return sorted(dir_list)
+	#	path_expr = self.subject_resources_dir_full_path(subject_info)
+	#	path_expr += os.sep + '*' + self.MSMALL_PROCESSED_SUFFIX
+	#	dir_list = glob.glob(path_expr)
+	#	return sorted(dir_list)
+
+
 	def multirun_icafix_dir_full_path(self, subject_info):
 		"""
 		Full path to diffusion preproc resource directory
@@ -485,11 +511,9 @@ class CcfArchive(object):
 		# path_expr = self.multirun_icafix_dir_full_path(subject_info)
 		# dir_list = glob.glob(path_expr)
 		# return sorted(dir_list)
-		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.FIX_PROCESSED_SUFFIX
+		path_expr = self.multirun_icafix_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
-
 
 
 	def available_fix_processed_dir_full_paths(self, subject_info):

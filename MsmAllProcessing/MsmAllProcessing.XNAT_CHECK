@@ -27,7 +27,7 @@ usage()
 {
 	cat <<EOF
 
-Check a created Structural Preprocessing resource for completeness
+Check a created MsmAll Processing resource for completeness
 
 Usage: ${g_script_name} PARAMETER..."
 
@@ -186,7 +186,7 @@ main()
 	success_file_name="${g_subject}.${g_classifier}.${g_script_name}.success"
 
 	check_cmd=""
-	check_cmd+="${XNAT_PBS_JOBS}/lib/ccf/structural_preprocessing_hand_edit/one_subject_completion_xnat_checker.py"
+	check_cmd+="${XNAT_PBS_JOBS}/lib/ccf/msmall_processing/one_subject_completion_xnat_checker.py"
 	check_cmd+=" --project=${g_project}"
 	check_cmd+=" --subject=${g_subject}"
 	check_cmd+=" --classifier=${g_classifier}"
@@ -224,7 +224,7 @@ main()
 		put_success_file_cmd+=" --project=${g_project}"
 		put_success_file_cmd+=" --subject=${g_subject}"
 		put_success_file_cmd+=" --session=${g_subject}_${g_classifier}"
-		put_success_file_cmd+=" --resource=Structural_preproc_handedit"
+		put_success_file_cmd+=" --resource=MsmAll_proc"
 		put_success_file_cmd+=" --file=${success_file_name}"
 		put_success_file_cmd+=" --file-path-within-resource=${g_subject}_${g_classifier}/ProcessingInfo/${success_file_name}"
 		put_success_file_cmd+=" --force"
@@ -241,7 +241,7 @@ main()
 		success_file_in_archive=""
 		success_file_in_archive+="${XNAT_PBS_JOBS_ARCHIVE_ROOT}/${g_project}"
 		success_file_in_archive+="/arc001/${g_subject}_${g_classifier}/RESOURCES"
-		success_file_in_archive+="/Structural_preproc_handedit/${g_subject}_${g_classifier}/ProcessingInfo/${success_file_name}"
+		success_file_in_archive+="/MsmAll_proc/${g_subject}_${g_classifier}/ProcessingInfo/${success_file_name}"
 
 		if [ -e ${success_file_in_archive} ] ; then
 			remove_file_cmd=""
@@ -253,7 +253,7 @@ main()
 			remove_file_cmd+=" --project=${g_project}"
 			remove_file_cmd+=" --subject=${g_subject}"
 			remove_file_cmd+=" --session=${g_subject}_${g_classifier}"
-			remove_file_cmd+=" --resource=Structural_preproc_handedit"
+			remove_file_cmd+=" --resource=MsmAll_proc"
 			remove_file_cmd+=" --file-path-within-resource=${g_subject}_${g_classifier}/ProcessingInfo/${success_file_name}"
 
 			${remove_file_cmd}
@@ -270,7 +270,7 @@ main()
 	put_log_file_cmd+=" --project=${g_project}"
 	put_log_file_cmd+=" --subject=${g_subject}"
 	put_log_file_cmd+=" --session=${g_subject}_${g_classifier}"
-	put_log_file_cmd+=" --resource=Structural_preproc_handedit"
+	put_log_file_cmd+=" --resource=MsmAll_proc"
 	put_log_file_cmd+=" --file=${log_file_name}"
 	put_log_file_cmd+=" --file-path-within-resource=${g_subject}_${g_classifier}/ProcessingInfo/${log_file_name}"
 	put_log_file_cmd+=" --force"
@@ -278,15 +278,16 @@ main()
 	
 	log_Msg "put_log_file_cmd: ${put_log_file_cmd}"
 	${put_log_file_cmd}
+	shadowserver_code=$?
 	
 	popd	
 
 	# clean up
-	if [ "${check_cmd_ret_code}" -eq 0 ]; then
+	if [ "${check_cmd_ret_code}" -eq 0 ] && [ "$shadowserver_code" -eq 0 ]; then
 		rm -rf ${g_working_dir}
+		log_Msg "Complete"
 	fi
 	
-	log_Msg "Complete"
 }
 
 # Invoke the main to get things started

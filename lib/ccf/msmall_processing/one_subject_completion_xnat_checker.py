@@ -2,25 +2,15 @@
 
 # import of built-in modules
 import sys
-import os
 
 # import of third-party modules
 
 # import of local modules
 import ccf.archive as ccf_archive
-import ccf.structural_preprocessing_hand_edit.one_subject_job_submitter as one_subject_job_submitter
+import ccf.msmall_processing.one_subject_job_submitter as one_subject_job_submitter
 import ccf.one_subject_completion_xnat_checker as one_subject_completion_xnat_checker
 import ccf.subject as ccf_subject
 import utils.my_argparse as my_argparse
-import utils.file_utils as file_utils
-import utils.os_utils as os_utils
-
-
-# authorship information
-__author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, The Connectome Coordination Facility"
-__maintainer__ = "Timothy B. Brown"
-
 
 class OneSubjectCompletionXnatChecker(one_subject_completion_xnat_checker.OneSubjectCompletionXnatChecker):
 
@@ -29,38 +19,24 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_xnat_checker.OneSub
 		
 	@property
 	def processing_name(self):
-		return 'StructuralPreprocessingHandEdit'	
-
-	@property
-	def structural_preproc_processing_name(self):
-		return 'StructuralPreprocessing'	
+		return 'MsmAllProcessing'	
 		
 	@property
 	def PIPELINE_NAME(self):
 		return one_subject_job_submitter.OneSubjectJobSubmitter.MY_PIPELINE_NAME()
 	
 	def my_resource(self, archive, subject_info):
-
-		return archive.structural_preproc_hand_edit_dir_full_path(subject_info)
+		return archive.msm_all_dir_full_path(subject_info)
 
 	def my_prerequisite_dir_full_paths(self, archive, subject_info):
-		return archive.available_structural_preproc_dir_full_paths(subject_info)
-
-
-	#def list_of_expected_files(self, working_dir, fieldmap, subject_info):
-	#	hcp_run_utils = os_utils.getenv_required('HCP_RUN_UTILS')
-	#	f = open(hcp_run_utils + os.sep + self.structural_preproc_processing_name + os.sep
-	#			 + self.expected_output_files_template_filename(fieldmap))
-	#	root_dir = os.sep.join([working_dir, subject_info.subject_id + '_' + subject_info.classifier])
-	#	l = file_utils.build_filename_list_from_file(f, root_dir,
-	#												 subjectid=subject_info.subject_id + '_' + subject_info.classifier,
-	#												 scan=subject_info.extra)
-	#	return l
+		dirs = []
+		dirs.append(archive.structural_preproc_dir_full_path(subject_info))
+		return dirs
 	
 if __name__ == "__main__":
 
 	parser = my_argparse.MyArgumentParser(
-		description="Program to check for completion of Structural Preprocessing Hand Editing.")
+		description="Program to check for completion of MSM-All Processing.")
 
 	# mandatory arguments
 	parser.add_argument('-p', '--project', dest='project', required=True, type=str)
@@ -78,7 +54,7 @@ if __name__ == "__main__":
 	# parse the command line arguments
 	args = parser.parse_args()
   
-	# check the specified subject for structural preprocessing hand editing completion
+	# check the specified subject for structural preprocessing completion
 	archive = ccf_archive.CcfArchive()
 	subject_info = ccf_subject.SubjectInfo(args.project, args.subject, args.classifier)
 	completion_checker = OneSubjectCompletionXnatChecker()

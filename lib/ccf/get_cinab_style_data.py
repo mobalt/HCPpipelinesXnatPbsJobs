@@ -154,6 +154,12 @@ class DataRetriever(object):
             self.archive.available_structural_preproc_dir_full_paths(subject_info),
             output_dir)
 
+    def get_icafix_data(self, subject_info, output_dir):
+        module_logger.debug(debug_utils.get_name())
+        self._get_processed_data(
+            self.archive.available_multirun_icafix_dir_full_paths(subject_info),
+            output_dir)
+
     def get_supplemental_structural_preproc_data(self, subject_info, output_dir):
         module_logger.debug(debug_utils.get_name())
         self._get_preprocessed_data(
@@ -339,6 +345,25 @@ class DataRetriever(object):
             self.get_preproc_data(subject_info, output_dir)
             self.get_unproc_data(subject_info, output_dir)
 
+
+    def get_msmall_prereqs(self, subject_info, output_dir):
+        """
+        Get the data necessary to run the MsmAll pipeline
+        """
+        if self.copy:
+            # when copying (via rsync), data should be retrieved in chronological order
+            # (i.e. the order in which the pipelines are run)
+            self.get_unproc_data(subject_info, output_dir)
+            self.get_preproc_data(subject_info, output_dir)
+            self.get_icafix_data(subject_info, output_dir)
+
+        else:
+            # when creating symbolic links, data should be retrieved in reverse
+            # chronological order
+            self.get_icafix_data(subject_info, output_dir)
+            self.get_preproc_data(subject_info, output_dir)
+            self.get_unproc_data(subject_info, output_dir)
+
     def _copy_some_dedriftandresample_links(self, subject_info, output_dir):
         """
         Some files that already exist prior to running the DeDriftAndResample pipeline
@@ -518,6 +543,7 @@ def main():
         "DIFF_PREPROC_PREREQS", "diff_preproc_prereqs",
         "FUNC_PREPROC_PREREQS", "func_preproc_prereqs",
         "MULTIRUNICAFIX_PREREQS", "multirunicafix_prereqs",
+        "MSMALL_PREREQS", "msmall_prereqs",
         "DEDRIFTANDRESAMPLE_PREREQS", "dedriftandresample_prereqs",
         "REAPPLYFIX_PREREQS", "reapplyfix_prereqs"
     ]
@@ -576,6 +602,9 @@ def main():
 
     elif args.phase == "MULTIRUNICAFIX_PREREQS":
         data_retriever.get_multirunicafix_prereqs(subject_info, args.output_study_dir)
+
+    elif args.phase == "MSMALL_PREREQS":
+        data_retriever.get_msmall_prereqs(subject_info, args.output_study_dir)
 
     elif args.phase == "DEDRIFTANDRESAMPLE_PREREQS":
         data_retriever.get_dedriftandresample_prereqs(subject_info, args.output_study_dir)
