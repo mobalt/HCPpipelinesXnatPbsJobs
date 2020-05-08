@@ -139,6 +139,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier)
 		script.write(' -maxdepth 1 -mindepth 1 \( -type d -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'ProcessingInfo')
 		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'MNINonLinear')
+		script.write(' -a -not -path ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + os.path.sep + 'T1w')
 		script.write(' \) -exec rm -rf \'{}\' \;')
 		script.write(os.linesep)
 		script.write('find ' + self.working_directory_name + os.path.sep + self.subject + '_' + self.classifier + " -type d -empty -delete")
