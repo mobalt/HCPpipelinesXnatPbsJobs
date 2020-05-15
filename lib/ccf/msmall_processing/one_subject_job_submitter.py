@@ -46,7 +46,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 	@property
 	def WORK_PPN(self):
 		return 1
-	
+
 	@property
 	def groups(self):
 		subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
@@ -54,7 +54,12 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		groupsA = []
 		for preproc_dir in preproc_dirs:
 			groupsA.append(preproc_dir[preproc_dir.rindex(os.sep)+1:preproc_dir.index("_preproc")])
-		groupsA.sort()
+		def fmrisort(x):
+			priority = [ "rfMRI_REST1_AP","rfMRI_REST1_PA","rfMRI_REST1a_PA","rfMRI_REST1a_AP","rfMRI_REST1b_PA","rfMRI_REST1b_AP",
+				"tfMRI_GUESSING_PA","tfMRI_GUESSING_AP","tfMRI_VISMOTOR_PA","tfMRI_CARIT_PA","tfMRI_CARIT_AP","tfMRI_EMOTION_PA","tfMRI_FACENAME_PA",
+				"rfMRI_REST2_AP","rfMRI_REST2_PA","rfMRI_REST2a_AP","rfMRI_REST2a_PA","rfMRI_REST2b_AP","rfMRI_REST2b_PA" ]
+			return priority.index(x);
+		groupsA = sorted(groupsA, key=fmrisort)
 		return groupsA
 
 	def _expand(self, group):
@@ -104,6 +109,12 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write('  --classifier=' + self.classifier + ' \\' + os.linesep)
 		script.write('  --working-dir=' + self.working_directory_name + os.linesep)
 		script.write(os.linesep)
+		script.write('## Need to convert some files to symlinks as they are added to or rewritten by MSMAll' + os.linesep) 
+		script.write('if [ -d "' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + '" ] ; then ' + os.linesep) 
+		script.write('	pushd ' + self.working_directory_name + os.sep + self.subject + '_' + self.classifier + os.linesep) 
+		script.write('	find . -type l | egrep "\.spec$|prefiltered_func_data.*clean*" | xargs -I \'{}\' sh -c \'cp --remove-destination $(readlink {}) {}\'' + os.linesep)
+		script.write('	popd' + os.linesep)
+		script.write('fi' + os.linesep)
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
@@ -171,8 +182,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		mem_limit_str = str(self.mem_limit_gbs) + 'gb'
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
 		resources_line += ':ppn=' + str(self.WORK_PPN)
-		## MSM-All shouldn't be limited to haswell cores
-		#resources_line += ':haswell'
+		resources_line += ':haswell'
 		resources_line += ',walltime=' + walltime_limit_str
 		#resources_line += ',vmem=' + vmem_limit_str
 		resources_line += ',mem=' + mem_limit_str

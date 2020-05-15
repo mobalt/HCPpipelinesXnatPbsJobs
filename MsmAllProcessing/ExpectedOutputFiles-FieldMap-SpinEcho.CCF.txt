@@ -94,14 +94,6 @@ MNINonLinear fsaverage_LR32k {subjectid}.thickness_MSMAll.32k_fs_LR.dscalar.nii
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN conf.L
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN conf.R
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-1.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-2.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-3.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-4.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-5.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-6.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-7.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-8.surf.gii
-MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.CPgrid-9.surf.gii
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.logdir MSM.log
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.SOURCE-1.func.gii
 MNINonLinear Native MSMAll_InitialReg_1_d40_WRN L.SOURCE-1.surf.gii
