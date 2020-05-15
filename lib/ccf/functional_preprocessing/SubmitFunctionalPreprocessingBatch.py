@@ -140,8 +140,8 @@ if __name__ == '__main__':
 		subject_list.append(subject_info)
 	else:
 		# Otherwise, pull from file
-		print("Retrieving subject list from: " + subject_file_name)
 		subject_file_name = file_utils.get_subjects_file_name(__file__)
+		print("Retrieving subject list from: " + subject_file_name)
 		subject_list = ccf_subject.read_subject_info_list(subject_file_name, separator=":")
 
 	do_submissions(userid, password, subject_list)
