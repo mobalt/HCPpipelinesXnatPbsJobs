@@ -331,11 +331,17 @@ class CcfArchive(object):
 		List of full paths to any resource containing preprocessed functional data
 		for the specified subject
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX + self.NAME_DELIMITER + "handedit"
-		#path_expr += os.sep + 'Structural_Hand_Edit'
+		path_expr = self.hand_edit_dir_full_path(subject_info)
 		dir_list = glob.glob(path_expr)
-		#raise Exception('stop','here')
+		return sorted(dir_list)
+	
+	def available_structural_preproc_hand_edit_dir_full_paths(self, subject_info):
+		"""
+		List of full paths to any resource containing preprocessed structural data
+		for the specified subject
+		"""
+		path_expr = self.structural_preproc_hand_edit_dir_full_path(subject_info)
+		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 	
 	def available_structural_preproc_dir_full_paths(self, subject_info):
@@ -365,6 +371,14 @@ class CcfArchive(object):
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 		
+	def hand_edit_dir_full_path(self, subject_info):
+		"""
+		Full path to structural preproc resource directory
+		"""
+		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr += self.hand_edit_dir_name(subject_info)
+		return path_expr
+		
 	def structural_preproc_hand_edit_dir_full_path(self, subject_info):
 		"""
 		Full path to structural preproc resource directory
@@ -373,9 +387,22 @@ class CcfArchive(object):
 		path_expr += self.structural_preproc_hand_edit_dir_name(subject_info)
 		return path_expr
 
+	def hand_edit_dir_name(self, subject_info):
+		name = 'Structural_Hand_Edit'
+		return name
+
 	def structural_preproc_hand_edit_dir_name(self, subject_info):
 		name = 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX + self.NAME_DELIMITER + "handedit"
 		return name
+	
+	def available_hand_edit_dir_full_paths(self, subject_info):
+		"""
+		List of full paths to any resource containing preprocessed structural data
+		for the specified subject
+		"""
+		path_expr = self.hand_edit_dir_full_path(subject_info)
+		dir_list = glob.glob(path_expr)
+		return sorted(dir_list)
 	
 	def available_structural_preproc_hand_edit_dir_full_paths(self, subject_info):
 		"""

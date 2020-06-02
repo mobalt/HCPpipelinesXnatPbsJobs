@@ -38,6 +38,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 	_SEVEN_MM_TEMPLATE_PROJECTS = os_utils.getenv_required('SEVEN_MM_TEMPLATE_PROJECTS')
 	_CONNECTOME_SKYRA_SCANNER_PROJECTS = os_utils.getenv_required('CONNECTOME_SKYRA_SCANNER_PROJECTS')
 	_PRISMA_3T_PROJECTS = os_utils.getenv_required('PRISMA_3T_PROJECTS')
+	_SCRATCH_PROCESSING_DIR = os_utils.getenv_required('SCRATCH_PROCESSING_DIR')
 	_SUPPRESS_FREESURFER_ASSESSOR_JOB = True
 	
 	@classmethod
@@ -329,6 +330,13 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			return self.session + self.archive.NAME_DELIMITER + self._get_first_t2w_name(subject_info) + '.nii.gz'
 
 	def create_process_data_job_script(self):
+
+		project_build_dir = self.build_home + os.sep + self.project
+		pipeline_processing_dir = self.working_directory_name.replace(project_build_dir + os.sep, '');
+		scratch_processing_dir = self._SCRATCH_PROCESSING_DIR + os.sep + self.project
+		if not os.path.exists(scratch_processing_dir):
+			os.mkdir(scratch_processing_dir)
+
 		module_logger.debug(debug_utils.get_name())
 
 		xnat_pbs_jobs_control_folder = os_utils.getenv_required('XNAT_PBS_JOBS_CONTROL')
@@ -355,7 +363,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_qunexrun_path()
 		parameter_line   = '  --parameterfolder=' + self._get_xnat_pbs_setup_script_singularity_qunexparameter_path()
-		studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
+		#studyfolder_line   = '  --studyfolder=' + self.working_directory_name + '/' + self.subject + '_' + self.classifier
+		studyfolder_line   = '  --studyfolder=' + scratch_processing_dir + os.sep + pipeline_processing_dir + os.sep + self.subject + '_' + self.classifier
 		subject_line   = '  --subjects=' + self.subject+ '_' + self.classifier
 		overwrite_line = '  --overwrite=yes'
 		hcppipelineprocess_line = '  --hcppipelineprocess=StructuralPreprocessing'
@@ -366,12 +375,19 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
 			script.write(os.linesep)
+			script.write('# TEMPORARILY MOVE PROCESSING DIRECTORY TO SCRATCH SPACE DUE TO "Cannot allocate memory" ERRORS IN BUILD SPACE' + os.linesep)
+			script.write('mv ' + self.working_directory_name + " " + scratch_processing_dir + os.linesep)
+			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
 			script.write(parameter_line + ' \\' + os.linesep)
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
 			script.write(hcppipelineprocess_line + os.linesep)
+			script.write(os.linesep)
+			script.write('# MOVE PROCESSING BACK' + os.linesep)
+			script.write('mv ' + scratch_processing_dir + os.sep + pipeline_processing_dir + ' ' + project_build_dir + os.linesep)
+			script.write(os.linesep)
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 
 	def create_freesurfer_assessor_script(self):

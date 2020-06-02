@@ -285,13 +285,9 @@ class DataRetriever(object):
             self.get_hand_edit_data(subject_info, output_dir)
             self.get_supplemental_structural_preproc_data(subject_info, output_dir)
         else:
-            # For hand-editing, we need to retreive hand edit data as files
-            self.copy = True;
-            self.get_hand_edit_data(subject_info, output_dir)
-            self.copy = False;
-            # when creating symbolic links, data should be retrieved in reverse
             # chronological order
             self.get_supplemental_structural_preproc_data(subject_info, output_dir)
+            self.get_hand_edit_data(subject_info, output_dir)
             self.get_structural_preproc_data(subject_info, output_dir)
             self.get_unproc_data(subject_info, output_dir)
 
