@@ -472,6 +472,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 		script.write(os.linesep)
 		script.write('echo "Run structural QC on hand edited output"' + os.linesep)
 		script.write('curl -n https://' + str_utils.get_server_name(self.put_server) + '/xapi/structuralQc/project/' + self.project + '/subject/' + self.subject + '/experiment/' + self.session + '/runStructuralQcHandEditingProcessing -X POST' + os.linesep)
+		script.write('curl -n https://' + str_utils.get_server_name(self.put_server) + '/xapi/structuralQc/project/' + self.project + '/subject/' + self.subject + '/experiment/' + self.session + '/sendCompletionNotification -X POST' + os.linesep)
 		script.write(os.linesep)
 		script.close()
 		os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
