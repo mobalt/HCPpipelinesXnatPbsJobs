@@ -49,6 +49,42 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 	def WORK_PPN(self):
 		return 1
 
+	@property
+	def groups(self):
+		subject_info = ccf_subject.SubjectInfo(self.project, self.subject, self.classifier)
+		# diffusion not working, commenting it out and using functional
+		#preproc_dirs = self.archive.available_diffusion_preproc_dir_full_paths(subject_info)
+		preproc_dirs = self.archive.available_functional_preproc_dir_full_paths(subject_info)
+		groupsA = []
+		for preproc_dir in preproc_dirs:
+			groupsA.append(preproc_dir[preproc_dir.rindex(os.sep)+1:preproc_dir.index("_preproc")])
+
+		#groupsA.sort()
+		return groupsA
+
+	def _expand(self, group):
+		result = ''
+		for scan_name in self.groups:
+			result += scan_name + '|'
+		return result.strip('|')
+
+	def _concat(self, group):
+		scan_name_list = group.split(sep='@')
+		core_names = []
+		for scan_name in scan_name_list:
+			parts = scan_name.split(sep='_')
+			if parts[1] not in core_names:
+				core_names.append(parts[1])
+
+		concat_name = "_".join(core_names)
+
+		if "REST" in concat_name:
+			concat_name = "rfMRI_" + concat_name + "_RL_LR"
+		else:
+			concat_name = "tfMRI_" + concat_name + "_RL_LR"
+
+		return concat_name
+
 	def create_get_data_job_script(self):
 		"""Create the script to be submitted to perform the get data job"""
 		module_logger.debug(debug_utils.get_name())
@@ -141,18 +177,19 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			os.remove(script_name)
 
 		walltime_limit_str = str(self.walltime_limit_hours) + ':00:00'
-		vmem_limit_str = str(self.vmem_limit_gbs) + 'gb'
+		mem_limit_str = str(self.mem_limit_gbs) + 'gb'
 
 		resources_line = '#PBS -l nodes=' + str(self.WORK_NODE_COUNT)
-		resources_line += ':ppn=' + str(self.WORK_PPN) +':gpus=1'
+		resources_line += ':ppn=' + str(self.WORK_PPN) +':gpus=1:K20x'
 		resources_line += ',walltime=' + walltime_limit_str
-		resources_line += ',mem=' + vmem_limit_str
+		resources_line += ',mem=' + mem_limit_str
 
 		stdout_line = '#PBS -o ' + self.working_directory_name
 		stderr_line = '#PBS -e ' + self.working_directory_name
+		load_cuda = "module load cuda-9.1"
 
 		xnat_pbs_setup_singularity_load = 'module load ' + self._get_xnat_pbs_setup_script_singularity_version()
-		xnat_pbs_setup_singularity_process = 'singularity exec --nv -B ' \
+		xnat_pbs_setup_singularity_process = 'singularity exec --nv -B ' + xnat_pbs_jobs_control_folder + ':/opt/xnat_pbs_jobs_control,' \
 											+ self._get_xnat_pbs_setup_script_archive_root() + ',' + self._get_xnat_pbs_setup_script_singularity_bind_path() \
 											+ ',' + self._get_xnat_pbs_setup_script_gradient_coefficient_path() + ':/export/HCP/gradient_coefficient_files' \
 											+ ' ' + self._get_xnat_pbs_setup_script_singularity_container_path() + ' ' + self._get_xnat_pbs_setup_script_singularity_qunexrun_path()
@@ -167,6 +204,7 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(stdout_line + os.linesep)
 			script.write(stderr_line + os.linesep)
 			script.write(os.linesep)
+			script.write(load_cuda + os.linesep)
 			script.write(xnat_pbs_setup_singularity_load + os.linesep)
 			script.write(os.linesep)
 			script.write(xnat_pbs_setup_singularity_process+ ' \\' + os.linesep)
@@ -174,6 +212,8 @@ class OneSubjectJobSubmitter(one_subject_job_submitter.OneSubjectJobSubmitter):
 			script.write(studyfolder_line + ' \\' + os.linesep)
 			script.write(subject_line + ' \\' + os.linesep)
 			script.write(overwrite_line + ' \\' + os.linesep)
+			self._group_list = []
+			script.write('  --boldlist="' + self._expand(self.groups) + '" \\' + os.linesep)
 			script.write(hcppipelineprocess_line + os.linesep)
 			os.chmod(script_name, stat.S_IRWXU | stat.S_IRWXG)
 			
@@ -228,7 +268,7 @@ if __name__ == "__main__":
 	processing_stage_str = sys.argv[5]
 	processing_stage = submitter.processing_stage_from_string(processing_stage_str)
 	walltime_limit_hrs = sys.argv[6]
-	vmem_limit_gbs = sys.argv[7]
+	mem_limit_gbs = sys.argv[7]
 	output_resource_suffix = sys.argv[8]
 	
 	print("-----")
@@ -240,7 +280,7 @@ if __name__ == "__main__":
 	print("\t	clean_output_first:", clean_output_first)
 	print("\t	  processing_stage:", processing_stage)
 	print("\t	walltime_limit_hrs:", walltime_limit_hrs)
-	print("\t		vmem_limit_gbs:", vmem_limit_gbs)
+	print("\t		mem_limit_gbs:", mem_limit_gbs)
 	print("\toutput_resource_suffix:", output_resource_suffix)	
 
 	
@@ -261,7 +301,7 @@ if __name__ == "__main__":
 	submitter.clean_output_resource_first = clean_output_first
 	submitter.put_server = put_server
 	submitter.walltime_limit_hours = walltime_limit_hrs
-	submitter.vmem_limit_gbs = vmem_limit_gbs
+	submitter.mem_limit_gbs = mem_limit_gbs
 	submitter.output_resource_suffix = output_resource_suffix
 
 	# submit jobs
