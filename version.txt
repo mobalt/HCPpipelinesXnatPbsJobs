@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-Before v1.0.0
-=======
-feature/submit_from_local
->>>>>>> 91bb8e4b46da63cfcac4c0cc9ad35ad38ccce211
