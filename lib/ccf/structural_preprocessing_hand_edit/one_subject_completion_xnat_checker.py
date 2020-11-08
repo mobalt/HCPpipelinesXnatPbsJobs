@@ -2,18 +2,14 @@
 
 # import of built-in modules
 import sys
-import os
 
 # import of third-party modules
 
 # import of local modules
 import ccf.archive as ccf_archive
-import ccf.structural_preprocessing_hand_edit.one_subject_job_submitter as one_subject_job_submitter
 import ccf.one_subject_completion_xnat_checker as one_subject_completion_xnat_checker
 import ccf.subject as ccf_subject
 import utils.my_argparse as my_argparse
-import utils.file_utils as file_utils
-import utils.os_utils as os_utils
 
 
 # authorship information
@@ -37,8 +33,8 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_xnat_checker.OneSub
 		
 	@property
 	def PIPELINE_NAME(self):
-		return one_subject_job_submitter.OneSubjectJobSubmitter.MY_PIPELINE_NAME()
-	
+		return 'StructuralPreprocessingHandEdit'
+
 	def my_resource(self, archive, subject_info):
 
 		return archive.structural_preproc_hand_edit_dir_full_path(subject_info)

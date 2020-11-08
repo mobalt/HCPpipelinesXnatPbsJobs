@@ -7,7 +7,6 @@ import sys
 
 # import of local modules
 import ccf.archive as ccf_archive
-import ccf.functional_preprocessing.one_subject_job_submitter as one_subject_job_submitter
 import ccf.one_subject_completion_xnat_checker as one_subject_completion_xnat_checker
 import ccf.subject as ccf_subject
 import utils.my_argparse as my_argparse
@@ -29,7 +28,7 @@ class OneSubjectCompletionXnatChecker(one_subject_completion_xnat_checker.OneSub
 
 	@property
 	def PIPELINE_NAME(self):
-		return one_subject_job_submitter.OneSubjectJobSubmitter.MY_PIPELINE_NAME()
+		return 'FunctionalPreprocessing'
 
 	def my_resource(self, archive, subject_info):
 		return archive.functional_preproc_dir_full_path(subject_info)
