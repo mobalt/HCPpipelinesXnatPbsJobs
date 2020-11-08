@@ -102,7 +102,7 @@ class DataRetriever(object):
             module_logger.debug(debug_utils.get_name() + " get_from: " + get_from)
 
             last_sep_loc = get_from.rfind(os.sep)
-            unproc_loc = get_from.rfind(self.archive.NAME_DELIMITER + self.archive.UNPROC_SUFFIX)
+            unproc_loc = get_from.rfind("_" + self.archive.UNPROC_SUFFIX)
             sub_dir = get_from[last_sep_loc + 1:unproc_loc]
             put_to = output_dir + os.sep + subject_info.subject_id + "_" + subject_info.classifier + os.sep + 'unprocessed' + os.sep + sub_dir
 			

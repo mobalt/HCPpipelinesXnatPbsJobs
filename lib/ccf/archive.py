@@ -6,23 +6,10 @@ ccf/archive.py: Provides direct access to a CCF project archive.
 
 # import of built-in modules
 import glob
-import logging
 import os
 
-# import of third-party modules
 
-# import of local modules
-import xnat.xnat_archive as xnat_archive
 
-# authorship information
-__author__ = "Timothy B. Brown"
-__copyright__ = "Copyright 2017, Connectome Coordination Facility"
-__maintainer__ = "Junil Chang"
-
-# create a module logger
-module_logger = logging.getLogger(__name__)
-module_logger.setLevel(logging.WARNING)  # Note: This can be overidden by log file configuration
-module_logger.setLevel(logging.DEBUG)  # Note: This can be overidden by log file configuration
 
 
 class CcfArchive(object):
@@ -35,41 +22,18 @@ class CcfArchive(object):
 	or a change in conventions could cause this code to no longer be correct.
 	"""
 
-	def __init__(self):
-		"""
-		Initialize a CcfArchive object.
-		"""
-		self._xnat_archive = xnat_archive.XNAT_Archive()
-
-	@property
-	def NAME_DELIMITER(self):
-		"""
-		Character used in resource directory names to delimit sections of the resource name.
-		For example, in tfMRI_MOVIE1_AP_unproc, the underscore character separates the
-		prefix indicating the scan modality, 'tfMRI' = task functional MRI, from the
-		section of the name indicating what type of activity the subject was engaged in,
-		'MOVIE1' = MOVIE watching task number 1. Similarly the another underscore separates
-		the subject activity from the phase encoding indication, 'AP' = Anterior to Posterior.
-		Finally, another underscore separates the phase encoding indication from the
-		suffix that marks the resource as containing unprocessed data, 'unproc')
-		"""
-		return '_'
-
-	@property
-	def xnat_archive(self):
-		"""
-		An XNAT_Archive object that provides direct access
-		to an XNAT data archive on the file system.
-		"""
-		return self._xnat_archive
 
 	@property
 	def build_home(self):
 		"""
 		The temporary build/processing space directory root
 		"""
-		return self._xnat_archive.build_space_root
+		return os.getenv('XNAT_PBS_JOBS_BUILD_DIR')
 
+	@property
+	def archive_root(self):
+		return os.getenv('XNAT_PBS_JOBS_ARCHIVE_ROOT')
+	
 	@property
 	def UNPROC_SUFFIX(self):
 		"""
@@ -146,15 +110,15 @@ class CcfArchive(object):
 		"""
 		The conventional session name for a subject in this project archive
 		"""
-		return subject_info.subject_id + self.NAME_DELIMITER + subject_info.classifier
+		return subject_info.subject_id + "_" + subject_info.classifier
 
 	def session_dir_full_path(self, subject_info):
 		"""
 		The full path to the conventional session directory for a subject
 		in this project archive
 		"""
-		session_dir = self.xnat_archive.project_archive_root(subject_info.project)
-		session_dir += os.sep + self.session_name(subject_info)
+		session_dir = f"{self.archive_root}/{subject_info.project}/arc001"
+		session_dir += "/" + self.session_name(subject_info)
 		return session_dir
 
 	def subject_resources_dir_full_path(self, subject_info):
@@ -162,14 +126,14 @@ class CcfArchive(object):
 		The full path to the conventional subject-level resources
 		directory for a subject in this project archive
 		"""
-		return self.session_dir_full_path(subject_info) + os.sep + 'RESOURCES'
+		return self.session_dir_full_path(subject_info) + "/" + 'RESOURCES'
 
 	def project_resources_dir_full_path(self, project_id):
 		"""
 		The full path to the project-level resources directory
 		for the specified project
 		"""
-		return self.xnat_archive.project_resources_root(project_id)
+		return f'{self.archive_root}/{project_id}/resources'
 
 	# scan name property checking methods
 
@@ -195,7 +159,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'T[12]w' + self.NAME_DELIMITER + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T[12]w' + "_" + '*' + self.UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -213,7 +177,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'T1w' + self.NAME_DELIMITER + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T1w' + "_" + '*' + self.UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -231,7 +195,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'T2w' + self.NAME_DELIMITER + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T2w' + "_" + '*' + self.UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -249,7 +213,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -278,7 +242,7 @@ class CcfArchive(object):
 		Full path to the unprocessed diffusion data resource directory
 		"""
 		path = self.subject_resources_dir_full_path(subject_info)
-		path += os.sep + 'Diffusion' + self.NAME_DELIMITER + self.UNPROC_SUFFIX
+		path += "/" + 'Diffusion' + "_" + self.UNPROC_SUFFIX
 		return path
 
 	def available_diffusion_unproc_dir_full_paths(self, subject_info):
@@ -302,7 +266,7 @@ class CcfArchive(object):
 		Full path to the running status resource directory
 		"""
 		path = self.subject_resources_dir_full_path(subject_info)
-		path += os.sep + 'RunningStatus'
+		path += "/" + 'RunningStatus'
 		return path		
  
 	def available_running_status_dir_full_paths(self, subject_info):
@@ -318,12 +282,12 @@ class CcfArchive(object):
 		"""
 		Full path to structural preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.structural_preproc_dir_name(subject_info)
 		return path_expr
 
 	def structural_preproc_dir_name(self, subject_info):
-		name = 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX
+		name = 'Structural' + "_" + self.PREPROC_SUFFIX
 		return name
 
 	def available_hand_edit_full_paths(self, subject_info):
@@ -358,8 +322,8 @@ class CcfArchive(object):
 		Full path to supplemental structural preproc resource directory
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX
-		path_expr += os.sep + 'supplemental'
+		path_expr += "/" + 'Structural' + "_" + self.PREPROC_SUFFIX
+		path_expr += "/" + 'supplemental'
 		return path_expr
 
 	def available_supplemental_structural_preproc_dir_full_paths(self, subject_info):
@@ -375,7 +339,7 @@ class CcfArchive(object):
 		"""
 		Full path to structural preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.hand_edit_dir_name(subject_info)
 		return path_expr
 		
@@ -383,7 +347,7 @@ class CcfArchive(object):
 		"""
 		Full path to structural preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.structural_preproc_hand_edit_dir_name(subject_info)
 		return path_expr
 
@@ -392,7 +356,7 @@ class CcfArchive(object):
 		return name
 
 	def structural_preproc_hand_edit_dir_name(self, subject_info):
-		name = 'Structural' + self.NAME_DELIMITER + self.PREPROC_SUFFIX + self.NAME_DELIMITER + "handedit"
+		name = 'Structural' + "_" + self.PREPROC_SUFFIX + "_" + "handedit"
 		return name
 	
 	def available_hand_edit_dir_full_paths(self, subject_info):
@@ -417,12 +381,12 @@ class CcfArchive(object):
 		"""
 		Full path to diffusion preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.diffusion_preproc_dir_name(subject_info)
 		return path_expr
 
 	def diffusion_preproc_dir_name(self, subject_info):
-		name = 'Diffusion' + self.NAME_DELIMITER + self.PREPROC_SUFFIX
+		name = 'Diffusion' + "_" + self.PREPROC_SUFFIX
 		return name
 
 	def available_diffusion_preproc_dir_full_paths(self, subject_info):
@@ -441,7 +405,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.PREPROC_SUFFIX
+		path_expr += "/" + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.PREPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -459,7 +423,7 @@ class CcfArchive(object):
 		(including the specified scan in the subject_info.extra field)
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + self.functional_preproc_dir_name(subject_info)
+		path_expr += "/" + self.functional_preproc_dir_name(subject_info)
 		return path_expr
 
 	def functional_preproc_dir_name(self, subject_info):
@@ -477,7 +441,7 @@ class CcfArchive(object):
 		Full path to MSM All registration resource directory
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'MSMAllReg'
+		path_expr += "/" + 'MSMAllReg'
 		return path_expr
 
 	def available_msmall_registration_dir_full_paths(self, subject_info):
@@ -494,7 +458,7 @@ class CcfArchive(object):
 		"""
 		Full path to diffusion preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.msm_all_dir_name(subject_info)
 		return path_expr
 
@@ -511,7 +475,7 @@ class CcfArchive(object):
 	#	# dir_list = glob.glob(path_expr)
 	#	# return sorted(dir_list)
 	#	path_expr = self.subject_resources_dir_full_path(subject_info)
-	#	path_expr += os.sep + '*' + self.MSMALL_PROCESSED_SUFFIX
+	#	path_expr += "/" + '*' + self.MSMALL_PROCESSED_SUFFIX
 	#	dir_list = glob.glob(path_expr)
 	#	return sorted(dir_list)
 
@@ -520,12 +484,12 @@ class CcfArchive(object):
 		"""
 		Full path to diffusion preproc resource directory
 		"""
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/"
 		path_expr += self.multirun_icafix_dir_name(subject_info)
 		return path_expr
 
 	def multirun_icafix_dir_name(self, subject_info):
-		# name = 'MultiRunICAFIX' + self.NAME_DELIMITER + self.FIX_PROCESSED_SUFFIX
+		# name = 'MultiRunICAFIX' + "_" + self.FIX_PROCESSED_SUFFIX
 		# name = 'MultiRunICAFIX'
 		name = 'MultiRunIcaFix_proc'
 		return name
@@ -549,7 +513,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.FIX_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + self.FIX_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -558,7 +522,7 @@ class CcfArchive(object):
 		Full path to MSM All DeDrift and Resample resource directory
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'MSMAllDeDrift'
+		path_expr += "/" + 'MSMAllDeDrift'
 		return path_expr
 
 	def available_msmall_dedrift_and_resample_dir_full_paths(self, subject_info):
@@ -576,7 +540,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.RSS_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + self.RSS_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -586,7 +550,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.POSTFIX_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + self.POSTFIX_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -598,14 +562,14 @@ class CcfArchive(object):
 		dir_list = []
 
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + self.TASK_SCAN_MARKER + '*'
+		path_expr += "/" + self.TASK_SCAN_MARKER + '*'
 		first_dir_list = glob.glob(path_expr)
 
 		for directory in first_dir_list:
-			lastsepindex = directory.rfind(os.sep)
+			lastsepindex = directory.rfind("/")
 			basename = directory[lastsepindex + 1:]
-			index = basename.find(self.NAME_DELIMITER)
-			rindex = basename.rfind(self.NAME_DELIMITER)
+			index = basename.find("_")
+			rindex = basename.rfind("_")
 			if index == rindex:
 				dir_list.append(directory)
 
@@ -616,7 +580,7 @@ class CcfArchive(object):
 		Full path to bedpostx processed resource directory
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + 'Diffusion_bedpostx'
+		path_expr += "/" + 'Diffusion_bedpostx'
 		return path_expr
 
 	def available_bedpostx_processed_dir_full_paths(self, subject_info):
@@ -629,8 +593,8 @@ class CcfArchive(object):
 		return sorted(dir_list)
 
 	def reapplyfix_dir_full_path(self, subject_info, scan_name, reg_name=None):
-		path_expr = self.subject_resources_dir_full_path(subject_info) + os.sep + scan_name
-		path_expr += self.NAME_DELIMITER + self.REAPPLY_FIX_SUFFIX
+		path_expr = self.subject_resources_dir_full_path(subject_info) + "/" + scan_name
+		path_expr += "_" + self.REAPPLY_FIX_SUFFIX
 		if reg_name:
 			path_expr += reg_name
 
@@ -638,7 +602,7 @@ class CcfArchive(object):
 
 	def available_reapplyfix_dir_full_paths(self, subject_info, reg_name=None):
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += os.sep + '*' + self.REAPPLY_FIX_SUFFIX
+		path_expr += "/" + '*' + self.REAPPLY_FIX_SUFFIX
 		if reg_name:
 			path_expr += reg_name
 
@@ -662,6 +626,6 @@ class CcfArchive(object):
 
 	def _get_scan_name_from_path(self, path):
 		short_path = os.path.basename(path)
-		last_char = short_path.rfind(self.NAME_DELIMITER)
+		last_char = short_path.rfind("_")
 		name = short_path[:last_char]
 		return name
