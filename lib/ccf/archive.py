@@ -8,8 +8,15 @@ ccf/archive.py: Provides direct access to a CCF project archive.
 import glob
 import os
 
-
-
+UNPROC_SUFFIX = 'unproc'
+PREPROC_SUFFIX = "preproc"
+FUNCTIONAL_SCAN_MARKER = 'fMRI'
+RESTING_STATE_SCAN_MARKER = 'rfMRI'
+TASK_SCAN_MARKER = 'tfMRI'
+FIX_PROCESSED_SUFFIX = "FIX"
+RSS_PROCESSED_SUFFIX = "RSS"
+POSTFIX_PROCESSED_SUFFIX = "PostFix"
+REAPPLY_FIX_SUFFIX = "ReApplyFix"
 
 
 class CcfArchive(object):
@@ -33,78 +40,6 @@ class CcfArchive(object):
 	@property
 	def archive_root(self):
 		return os.getenv('XNAT_PBS_JOBS_ARCHIVE_ROOT')
-	
-	@property
-	def UNPROC_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains unprocessed
-		data
-		"""
-		return 'unproc'
-
-	@property
-	def PREPROC_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains preprocessed
-		data
-		"""
-		return "preproc"
-
-	@property
-	def FUNCTIONAL_SCAN_MARKER(self):
-		"""
-		Marker within a resource directory name used to indicate that the resource contains
-		functional MRI data
-		"""
-		return 'fMRI'
-
-	@property
-	def RESTING_STATE_SCAN_MARKER(self):
-		"""
-		Prefix to a resource directory name that indicates that the resource is for a resting
-		state functional MRI
-		"""
-		return 'r' + self.FUNCTIONAL_SCAN_MARKER
-
-	@property
-	def TASK_SCAN_MARKER(self):
-		"""
-		Prefix to a resource directory name that indicates that the resources is for a task
-		functional MRI
-		"""
-		return 't' + self.FUNCTIONAL_SCAN_MARKER
-
-	@property
-	def FIX_PROCESSED_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains FIX processed
-		data
-		"""
-		return "FIX"
-
-	@property
-	def RSS_PROCESSED_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains RSS
-		(Resting State Stats) processed data
-		"""
-		return "RSS"
-
-	@property
-	def POSTFIX_PROCESSED_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains PostFix
-		processed data
-		"""
-		return "PostFix"
-
-	@property
-	def REAPPLY_FIX_SUFFIX(self):
-		"""
-		Suffix to a resource directory name to indicate that the resource contains ReApplyFix
-		processed data
-		"""
-		return "ReApplyFix"
 
 	def session_name(self, subject_info):
 		"""
@@ -142,14 +77,14 @@ class CcfArchive(object):
 		Return an indication of whether the specified name is for a
 		resting state scan
 		"""
-		return scan_name.startswith(self.RESTING_STATE_SCAN_MARKER)
+		return scan_name.startswith(RESTING_STATE_SCAN_MARKER)
 
 	def is_task_scan_name(self, scan_name):
 		"""
 		Return an indication of whethe the specified name is for a
 		task scan
 		"""
-		return scan_name.startswith(self.TASK_SCAN_MARKER)
+		return scan_name.startswith(TASK_SCAN_MARKER)
 
 	# Unprocessed data paths and names
 
@@ -159,7 +94,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + 'T[12]w' + "_" + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T[12]w' + "_" + '*' + UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -177,7 +112,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + 'T1w' + "_" + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T1w' + "_" + '*' + UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -195,7 +130,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + 'T2w' + "_" + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + 'T2w' + "_" + '*' + UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -213,7 +148,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.UNPROC_SUFFIX
+		path_expr += "/" + '*' + FUNCTIONAL_SCAN_MARKER + '*' + UNPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -242,7 +177,7 @@ class CcfArchive(object):
 		Full path to the unprocessed diffusion data resource directory
 		"""
 		path = self.subject_resources_dir_full_path(subject_info)
-		path += "/" + 'Diffusion' + "_" + self.UNPROC_SUFFIX
+		path += "/" + 'Diffusion' + "_" + UNPROC_SUFFIX
 		return path
 
 	def available_diffusion_unproc_dir_full_paths(self, subject_info):
@@ -287,7 +222,7 @@ class CcfArchive(object):
 		return path_expr
 
 	def structural_preproc_dir_name(self, subject_info):
-		name = 'Structural' + "_" + self.PREPROC_SUFFIX
+		name = 'Structural' + "_" + PREPROC_SUFFIX
 		return name
 
 	def available_hand_edit_full_paths(self, subject_info):
@@ -322,7 +257,7 @@ class CcfArchive(object):
 		Full path to supplemental structural preproc resource directory
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + 'Structural' + "_" + self.PREPROC_SUFFIX
+		path_expr += "/" + 'Structural' + "_" + PREPROC_SUFFIX
 		path_expr += "/" + 'supplemental'
 		return path_expr
 
@@ -356,7 +291,7 @@ class CcfArchive(object):
 		return name
 
 	def structural_preproc_hand_edit_dir_name(self, subject_info):
-		name = 'Structural' + "_" + self.PREPROC_SUFFIX + "_" + "handedit"
+		name = 'Structural' + "_" + PREPROC_SUFFIX + "_" + "handedit"
 		return name
 	
 	def available_hand_edit_dir_full_paths(self, subject_info):
@@ -386,7 +321,7 @@ class CcfArchive(object):
 		return path_expr
 
 	def diffusion_preproc_dir_name(self, subject_info):
-		name = 'Diffusion' + "_" + self.PREPROC_SUFFIX
+		name = 'Diffusion' + "_" + PREPROC_SUFFIX
 		return name
 
 	def available_diffusion_preproc_dir_full_paths(self, subject_info):
@@ -405,7 +340,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.FUNCTIONAL_SCAN_MARKER + '*' + self.PREPROC_SUFFIX
+		path_expr += "/" + '*' + FUNCTIONAL_SCAN_MARKER + '*' + PREPROC_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -431,7 +366,7 @@ class CcfArchive(object):
 		Name of functional preprocessed resource for the specified subject
 		(including the specified scan in the subject_info.extra field)
 		"""
-		name = subject_info.extra + '_' + self.PREPROC_SUFFIX
+		name = subject_info.extra + '_' + PREPROC_SUFFIX
 		return name
 	
 	# processed data paths and names
@@ -475,7 +410,7 @@ class CcfArchive(object):
 	#	# dir_list = glob.glob(path_expr)
 	#	# return sorted(dir_list)
 	#	path_expr = self.subject_resources_dir_full_path(subject_info)
-	#	path_expr += "/" + '*' + self.MSMALL_PROCESSED_SUFFIX
+	#	path_expr += "/" + '*' + MSMALL_PROCESSED_SUFFIX
 	#	dir_list = glob.glob(path_expr)
 	#	return sorted(dir_list)
 
@@ -489,7 +424,7 @@ class CcfArchive(object):
 		return path_expr
 
 	def multirun_icafix_dir_name(self, subject_info):
-		# name = 'MultiRunICAFIX' + "_" + self.FIX_PROCESSED_SUFFIX
+		# name = 'MultiRunICAFIX' + "_" + FIX_PROCESSED_SUFFIX
 		# name = 'MultiRunICAFIX'
 		name = 'MultiRunIcaFix_proc'
 		return name
@@ -513,7 +448,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.FIX_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + FIX_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -540,7 +475,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.RSS_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + RSS_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -550,7 +485,7 @@ class CcfArchive(object):
 		for the specified subject
 		"""
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.POSTFIX_PROCESSED_SUFFIX
+		path_expr += "/" + '*' + POSTFIX_PROCESSED_SUFFIX
 		dir_list = glob.glob(path_expr)
 		return sorted(dir_list)
 
@@ -562,7 +497,7 @@ class CcfArchive(object):
 		dir_list = []
 
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + self.TASK_SCAN_MARKER + '*'
+		path_expr += "/" + TASK_SCAN_MARKER + '*'
 		first_dir_list = glob.glob(path_expr)
 
 		for directory in first_dir_list:
@@ -594,7 +529,7 @@ class CcfArchive(object):
 
 	def reapplyfix_dir_full_path(self, subject_info, scan_name, reg_name=None):
 		path_expr = self.subject_resources_dir_full_path(subject_info) + "/" + scan_name
-		path_expr += "_" + self.REAPPLY_FIX_SUFFIX
+		path_expr += "_" + REAPPLY_FIX_SUFFIX
 		if reg_name:
 			path_expr += reg_name
 
@@ -602,7 +537,7 @@ class CcfArchive(object):
 
 	def available_reapplyfix_dir_full_paths(self, subject_info, reg_name=None):
 		path_expr = self.subject_resources_dir_full_path(subject_info)
-		path_expr += "/" + '*' + self.REAPPLY_FIX_SUFFIX
+		path_expr += "/" + '*' + REAPPLY_FIX_SUFFIX
 		if reg_name:
 			path_expr += reg_name
 
